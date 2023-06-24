@@ -1,0 +1,18 @@
+.modal {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translate(-50%);
+
+  &__title {
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  &__error {
+    background-color: red;
+    padding-inline: 15px;
+    padding-block: 10px;
+    border-radius: 10px;
+  }
+}
