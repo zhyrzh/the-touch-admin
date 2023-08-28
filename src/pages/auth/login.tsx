@@ -18,7 +18,10 @@ const Login = () => {
   const { errors, validateInputs, removeErrors } = useInputValidator<{
     email: string;
     password: string;
-  }>(data!);
+  }>({
+    email: data?.email ? data.email : "",
+    password: data?.password ? data.password : "",
+  });
 
   useEffect(() => {
     if (localStorage.getItem("accessToken")) {
@@ -32,8 +35,8 @@ const Login = () => {
     const errorCount = validateInputs();
     if (errorCount === 0) {
       authContext.login({
-        email: data?.email,
-        password: data?.password,
+        email: data?.email! ? data.email : "",
+        password: data?.password! ? data.password : "",
       });
     }
   };
