@@ -1,10 +1,12 @@
-import { useState, useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../stores/user";
 import useInputChangeHandler from "../../hooks/useInputChangeHandler";
+import LogoLg from "../../assets/the-touch-logo-lg.png";
+import TextInput from "../../components/input/TextInput";
+import { useInputValidator } from "../../hooks/useInputValidator";
 
 const Login = () => {
-  const [error, setError] = useState<string>("");
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -13,6 +15,11 @@ const Login = () => {
     password: string;
   }>();
 
+  const { errors, validateInputs, removeErrors } = useInputValidator<{
+    email: string;
+    password: string;
+  }>(data!);
+
   useEffect(() => {
     if (localStorage.getItem("accessToken")) {
       navigate("/");
@@ -20,21 +27,10 @@ const Login = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const validateInput = (): boolean => {
-    if (!data?.email || !data?.password) {
-      setError("All fields are required!");
-      setTimeout(() => {
-        setError("");
-      }, 2000);
-      return false;
-    }
-    return true;
-  };
-
   // HTTP Request to login
   const onLogin = () => {
-    const isValidated = validateInput();
-    if (isValidated) {
+    const errorCount = validateInputs();
+    if (errorCount === 0) {
       authContext.login({
         email: data?.email,
         password: data?.password,
@@ -44,54 +40,50 @@ const Login = () => {
 
   return (
     <>
-      {error ? (
-        <div className="modal modal__error">
-          <h1 className="modal__title">{error}</h1>
-        </div>
-      ) : null}
-      {authContext.responseMessage ? (
-        <div className="modal modal__error">
-          <h1 className="modal__title">{authContext.responseMessage}</h1>
-        </div>
-      ) : null}
-      <div className="login">
-        <h1 className="login__title">Hello Journalist!</h1>
-        <h3 className="login__sub-title">Please login to continue</h3>
-        <div className="login__input-container">
-          <input
-            value={data?.email}
-            placeholder="Email"
-            type="text"
-            className="login__input"
+      <div className="auth">
+        <div className="auth__card-container">
+          <h1 className="auth__title">Hello Journalist!</h1>
+          <h3 className="auth__sub-title">Please login to continue</h3>
+          <TextInput
             name="email"
-            onChange={onInputChangeHandler}
-          />
-        </div>
-        <div className="login__input-container">
-          <input
-            value={data?.password}
-            placeholder="Password"
+            placeholder="Email"
+            value={data?.email!}
             type="text"
-            className="login__input"
-            name="password"
-            onChange={onInputChangeHandler}
+            errors={errors}
+            onInputChangeHandler={onInputChangeHandler}
+            removeErrors={() => {
+              removeErrors("email");
+            }}
           />
+          <TextInput
+            name="password"
+            placeholder="password"
+            value={data?.password!}
+            type="password"
+            errors={errors}
+            onInputChangeHandler={onInputChangeHandler}
+            removeErrors={() => {
+              removeErrors("password");
+            }}
+          />
+          <>
+            <p className="auth__forgot-password-button">Forgot Password?</p>
+            <div className={`auth__button-container `} onClick={onLogin}>
+              <button className="auth__button" disabled={authContext.loading}>
+                LOGIN
+              </button>
+            </div>
+            <div className="auth__button-container">
+              <button
+                className="auth__button"
+                onClick={() => navigate("/auth/register")}
+              >
+                APPLY AS JOURNALIST
+              </button>
+            </div>
+          </>
         </div>
-        <>
-          <div className={`login__button-container `} onClick={onLogin}>
-            <button className="login__button" disabled={authContext.loading}>
-              LOGIN
-            </button>
-          </div>
-          <div className="login__button-container">
-            <button
-              className="login__button"
-              onClick={() => navigate("/auth/register")}
-            >
-              APPLY AS JOURNALIST
-            </button>
-          </div>
-        </>
+        <img className="auth__page-image" src={LogoLg} alt="" />
       </div>
     </>
   );
