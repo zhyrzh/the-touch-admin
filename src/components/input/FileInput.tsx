@@ -1,4 +1,5 @@
-import { ChangeEvent, useState, FC } from "react";
+import { forwardRef, useImperativeHandle, useRef, useEffect } from "react";
+import { IUploadedImage, useUploadAsset } from "../../hooks/useUploadImage";
 
 export interface IUploadImageResponse {
   articleId: null | string;
@@ -8,51 +9,48 @@ export interface IUploadImageResponse {
 }
 
 interface IFileInputProps {
-  setUploadedFiles: (daya: any) => void;
+  setUploadedFiles: (data: any) => void;
+  onAddAsset: (image: IUploadedImage) => void;
   uploadedFiles: IUploadImageResponse[];
+  isHidden?: boolean;
 }
 
-const FileInput: FC<IFileInputProps> = ({
-  setUploadedFiles,
-  uploadedFiles,
-}) => {
-  // const [uploadedFiles, setUploadedFiles] = useState<
-  //   Array<IUploadImageResponse>
-  // >([]);
-  const onFileInputChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const ACCESS_TOKEN = localStorage.getItem("accessToken");
-    console.log(event.target.files);
-    const imageFormData = new FormData();
-    if (event.target.files) {
-      imageFormData.append("image", event.target.files[0]);
-    }
-    const res = await fetch("http://localhost:8000/upload-library/image", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${ACCESS_TOKEN}`,
-      },
-      body: imageFormData,
-    });
-    const data = await res.json();
-    console.log(data, "check response data");
-    setUploadedFiles(data);
-  };
+type Ref = {
+  click: () => void;
+} | null;
 
-  return (
-    <div>
-      {/* {console.log(uploadedFiles, "Check uploaded")} */}
-      <input
-        type="file"
-        onChange={onFileInputChange}
-        accept="image/png, image/gif, image/jpeg"
-      />
-      <ul>
-        {uploadedFiles?.map((file: IUploadImageResponse) => (
-          <li key={file.articleId}>{file.url}</li>
-        ))}
-      </ul>
-    </div>
-  );
-};
+const FileInput = forwardRef<Ref, IFileInputProps>(
+  ({ onAddAsset, uploadedFiles, isHidden = false }, ref) => {
+    const { onUploadFile, uploadedFile } = useUploadAsset();
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useImperativeHandle(ref, () => ({
+      click: () => {
+        inputRef.current?.click();
+      },
+    }));
+
+    useEffect(() => {
+      onAddAsset(uploadedFile!);
+    }, [uploadedFile]);
+
+    return (
+      <div hidden={isHidden}>
+        <input
+          type="file"
+          onChange={onUploadFile}
+          accept="image/png, image/gif, image/jpeg"
+          hidden={true}
+          ref={inputRef}
+        />
+        <ul>
+          {uploadedFiles?.map((file: IUploadImageResponse) => (
+            <li key={file.articleId}>{file.url}</li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+);
 
 export default FileInput;
