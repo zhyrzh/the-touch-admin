@@ -29,7 +29,7 @@ export const useInputValidator = <T,>(body: T): IUseInputValidator => {
       }
       if (key.toLowerCase().includes("email")) {
         if (
-          !/[a-zA-Z0-9]{2,}@[a-zA-Z0-9]{2,}\.[a-zA-Z]{2,}/.test(
+          !/[a-zA-Z0-9-]{2,}@[a-zA-Z0-9]{2,}\.[a-zA-Z]{2,}/.test(
             body[key] as string
           )
         ) {
