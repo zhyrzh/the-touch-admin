@@ -7,6 +7,7 @@ import LogoLg from "../../assets/the-touch-logo-lg.png";
 import TextInput from "../../components/input/TextInput";
 import { useInputValidator } from "../../hooks/useInputValidator";
 import { IUploadedImage } from "../../hooks/useUploadImage";
+import { MessageContext } from "../../stores/message";
 interface ISetupProfileTextInput {
   firstName: string;
   lastName: string;
@@ -16,6 +17,7 @@ interface ISetupProfileTextInput {
 
 const SetupProfile: FC<any> = () => {
   const authContext = useContext(AuthContext);
+  const messageContext = useContext(MessageContext);
   const navigate = useNavigate();
   const [profileImage, setProfileImage] = useState<{
     publicId: string;
@@ -44,13 +46,18 @@ const SetupProfile: FC<any> = () => {
 
   const onSetupProfile = async () => {
     const errorCount = validateInputs();
-    if (uploadedFiles.length >= 1 && errorCount === 0) {
+    if (profileImage && errorCount === 0) {
       authContext.setupProfile({
         ...data,
         email: authContext.user?.email,
         profileImage,
       });
     } else {
+      if (!profileImage) {
+        messageContext.onAddMessage(
+          "Please add a profile image before submitting"
+        );
+      }
       return;
     }
   };
@@ -63,12 +70,9 @@ const SetupProfile: FC<any> = () => {
 
   return (
     <>
-      {console.log(profileImage, "check profile images")}
-      {authContext.responseMessage ? (
-        <div className="modal modal__error">
-          <h1 className="modal__title">{authContext.responseMessage}</h1>
-        </div>
-      ) : null}
+      {authContext.responseMessage
+        ? messageContext.onAddMessage(authContext.responseMessage)
+        : null}
       <div className="auth" style={{ marginTop: "90px" }}>
         <div className="auth__card-container">
           <h1 className="auth__title">Setup your profile</h1>
