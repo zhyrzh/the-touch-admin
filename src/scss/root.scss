@@ -26,4 +26,25 @@ button {
 
 html {
   font-family: "Noto Sans", sans-serif;
+  height: 100%;
+}
+
+@keyframes inAnimation {
+  0% {
+    opacity: 0;
+    max-height: 0px;
+  }
+  100% {
+    opacity: 1;
+    max-height: 600px;
+  }
+}
+
+@keyframes outAnimation {
+  0% {
+    transform: translate(-100px);
+  }
+  100% {
+    transform: translate(100px);
+  }
 }
