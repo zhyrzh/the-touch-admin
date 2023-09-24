@@ -1,6 +1,7 @@
-import { FC, createContext, useState, useEffect } from "react";
-import { HttpMethod, authAPI, userAPI } from "../api";
+import { FC, createContext, useState, useEffect, useContext } from "react";
+import { authAPI, userAPI } from "../api";
 import { useNavigate } from "react-router-dom";
+import { MessageContext } from "./message";
 
 export interface IUser {
   email: string;
@@ -23,11 +24,12 @@ export const AuthContext = createContext<IAuthContext>(
 );
 
 const AuthContextProvider: FC<{ children: any }> = ({ children }) => {
+  const messageContext = useContext(MessageContext);
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [responseMessage, setResponseMessage] = useState<string>("");
-  const [user, setUser] = useState<IUser>();
+  const [user, setUser] = useState<IUser | null>();
 
   useEffect(() => {
     getUserInfo();
@@ -35,19 +37,16 @@ const AuthContextProvider: FC<{ children: any }> = ({ children }) => {
 
   const getUserInfo = async () => {
     try {
-      const response = await authAPI.call(HttpMethod.GET, `/user`);
+      const response: any = (await authAPI.getProfile()) as any;
 
-      if (response.statusCode >= 400 || !response) {
-        console.log("here1", response);
-        localStorage.removeItem("accessToken");
-        navigate("/auth/login");
-      }
-      if (response?.profile === null) {
-        console.log("here", response);
-        setUser(response.profile);
+      if (response.profile === null) {
         navigate("/user/setup-profile");
+        setUser(null);
+      } else {
+        setUser(response.profile);
       }
     } catch (error) {
+      console.log("triggered?");
       localStorage.removeItem("accessToken");
       navigate("/auth/login");
     }
@@ -66,14 +65,11 @@ const AuthContextProvider: FC<{ children: any }> = ({ children }) => {
         } else {
           navigate("/");
         }
-      } else {
-        setResponseMessage(response.message);
-        setTimeout(() => {
-          setResponseMessage("");
-        }, 2000);
       }
     } catch (error: any) {
-      setResponseMessage("Server Error");
+      // console.log(error.message, "ay check daw");
+      // setResponseMessage(error.message);
+      messageContext.onAddMessage(error.message);
       setTimeout(() => {
         setResponseMessage("");
       }, 2000);
@@ -101,8 +97,8 @@ const AuthContextProvider: FC<{ children: any }> = ({ children }) => {
           setResponseMessage("");
         }, 2000);
       }
-    } catch (error) {
-      setResponseMessage("Server Error");
+    } catch (error: any) {
+      setResponseMessage(error.message);
       setTimeout(() => {
         setResponseMessage("");
       }, 2000);
@@ -117,6 +113,7 @@ const AuthContextProvider: FC<{ children: any }> = ({ children }) => {
       const data = await authAPI.register(body);
       if (!data.error) {
         localStorage.setItem("accessToken", data.payload.access_token);
+        setUser(data.payload.profile);
         navigate("/user/setup-profile");
       } else {
         setTimeout(() => {
@@ -124,7 +121,12 @@ const AuthContextProvider: FC<{ children: any }> = ({ children }) => {
         }, 2000);
         setResponseMessage(data.message);
       }
-    } catch (error) {
+    } catch (error: any) {
+      // setResponseMessage(error.message);
+      messageContext.onAddMessage(error.message);
+      setTimeout(() => {
+        setResponseMessage("");
+      }, 2000);
     } finally {
       setLoading(false);
     }
