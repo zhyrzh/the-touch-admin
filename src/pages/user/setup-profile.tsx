@@ -1,9 +1,12 @@
-import { FC, useState, useContext, useEffect } from "react";
+import { FC, useState, useContext, useEffect, useRef } from "react";
 import FileInput from "../../components/input/FileInput";
 import useInputChangeHandler from "../../hooks/useInputChangeHandler";
 import { AuthContext } from "../../stores/user";
 import { useNavigate } from "react-router-dom";
-
+import LogoLg from "../../assets/the-touch-logo-lg.png";
+import TextInput from "../../components/input/TextInput";
+import { useInputValidator } from "../../hooks/useInputValidator";
+import { IUploadedImage } from "../../hooks/useUploadImage";
 interface ISetupProfileTextInput {
   firstName: string;
   lastName: string;
@@ -14,65 +17,154 @@ interface ISetupProfileTextInput {
 const SetupProfile: FC<any> = () => {
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
+  const [profileImage, setProfileImage] = useState<{
+    publicId: string;
+    url: string;
+  }>();
+
   const { data, onInputChangeHandler } =
     useInputChangeHandler<ISetupProfileTextInput>();
+
+  const { errors, removeErrors, validateInputs } =
+    useInputValidator<ISetupProfileTextInput>({
+      course: data?.course ? data.course : "",
+      firstName: data?.firstName ? data.firstName : "",
+      lastName: data?.lastName ? data.lastName : "",
+      position: data?.position ? data.position : "",
+    });
+
   const [uploadedFiles, setUploadedFiles] = useState<any>([]);
+  const fileUploadRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (authContext.user !== null) {
       navigate("/");
     }
-  }, []);
+  }, [authContext.user]);
 
   const onSetupProfile = async () => {
-    authContext.setupProfile({
-      ...data,
-      email: authContext.user?.email,
-      profileImage: {
-        publicId: uploadedFiles[0].publicId,
-        url: uploadedFiles[0].url,
-      },
-    });
+    const errorCount = validateInputs();
+    if (uploadedFiles.length >= 1 && errorCount === 0) {
+      authContext.setupProfile({
+        ...data,
+        email: authContext.user?.email,
+        profileImage,
+      });
+    } else {
+      return;
+    }
+  };
+
+  const onAddAsset = (image: IUploadedImage) => {
+    setProfileImage((_prevImage) => ({
+      ...image,
+    }));
   };
 
   return (
-    <div>
-      <input
-        onChange={onInputChangeHandler}
-        type="text"
-        name="firstName"
-        placeholder="First Name"
-        value={data?.firstName ? data.firstName : ""}
-      />
-      <input
-        onChange={onInputChangeHandler}
-        type="text"
-        name="lastName"
-        placeholder="Last Name"
-        value={data?.lastName ? data.lastName : ""}
-      />
-      <input
-        onChange={onInputChangeHandler}
-        type="text"
-        name="course"
-        placeholder="Course"
-        value={data?.course ? data.course : ""}
-      />
-      <input
-        onChange={onInputChangeHandler}
-        type="text"
-        name="position"
-        placeholder="Position"
-        value={data?.position ? data.position : ""}
-      />
-      <FileInput
-        uploadedFiles={uploadedFiles}
-        setUploadedFiles={(data: any) =>
-          setUploadedFiles((prevFiles: any) => [...prevFiles, data])
-        }
-      />
-      <button onClick={() => onSetupProfile()}>Save</button>
-    </div>
+    <>
+      {console.log(profileImage, "check profile images")}
+      {authContext.responseMessage ? (
+        <div className="modal modal__error">
+          <h1 className="modal__title">{authContext.responseMessage}</h1>
+        </div>
+      ) : null}
+      <div className="auth" style={{ marginTop: "90px" }}>
+        <div className="auth__card-container">
+          <h1 className="auth__title">Setup your profile</h1>
+          <h3 className="auth__sub-title">
+            Fill up details to setup your profile
+          </h3>
+          <div
+            className="auth__user-profile-image-container"
+            onClick={() => {
+              if (fileUploadRef.current) {
+                fileUploadRef.current.click();
+              }
+            }}
+            style={{
+              backgroundColor:
+                uploadedFiles.length >= 1 ? "transparent" : "#d9d9d9",
+            }}
+          >
+            {profileImage ? (
+              <div
+                style={{
+                  borderRadius: "100%",
+                }}
+              >
+                <img
+                  className="auth__user-profile-image"
+                  src={profileImage.url}
+                  alt=""
+                />
+              </div>
+            ) : null}
+          </div>
+          <FileInput
+            uploadedFiles={uploadedFiles}
+            setUploadedFiles={(data: any) =>
+              setUploadedFiles((_prevFiles: any) => [data])
+            }
+            ref={fileUploadRef}
+            onAddAsset={onAddAsset}
+            isHidden
+          />
+          <TextInput
+            name="firstName"
+            placeholder="First Name"
+            value={data?.firstName!}
+            type="text"
+            errors={errors}
+            onInputChangeHandler={onInputChangeHandler}
+            removeErrors={(name: string) => {
+              removeErrors(name);
+            }}
+          />
+          <TextInput
+            name="lastName"
+            placeholder="Last Name"
+            value={data?.lastName!}
+            errors={errors}
+            onInputChangeHandler={onInputChangeHandler}
+            removeErrors={(name: string) => {
+              removeErrors(name);
+            }}
+          />
+          <TextInput
+            name="course"
+            placeholder="Course"
+            value={data?.course!}
+            errors={errors}
+            onInputChangeHandler={onInputChangeHandler}
+            removeErrors={(name: string) => {
+              removeErrors(name);
+            }}
+          />
+          <TextInput
+            name="position"
+            placeholder="Position"
+            value={data?.position!}
+            errors={errors}
+            onInputChangeHandler={onInputChangeHandler}
+            removeErrors={(name: string) => {
+              removeErrors(name);
+            }}
+          />
+          <div className={`auth__button-container `}>
+            <button className="auth__button" onClick={() => onSetupProfile()}>
+              Save
+            </button>
+          </div>
+        </div>
+        <img
+          className="auth__page-image"
+          src={LogoLg}
+          alt=""
+          draggable={false}
+        />
+      </div>
+    </>
   );
 };
 
