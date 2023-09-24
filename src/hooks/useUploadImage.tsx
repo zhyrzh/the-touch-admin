@@ -1,10 +1,7 @@
 import { ChangeEvent, useContext, useState } from "react";
 import { MessageContext } from "../stores/message";
 import { assetsAPI } from "../api/assets";
-
-interface IUploadedAssetHook {
-  onAddFile: (image: IUploadedImage) => void;
-}
+import { LoadingContext } from "../stores/loading";
 
 export interface IUploadedImage {
   createdAt: string;
@@ -15,6 +12,7 @@ export interface IUploadedImage {
 
 export const useUploadAsset = () => {
   const messageContext = useContext(MessageContext);
+  const loadingContext = useContext(LoadingContext);
   const [uploadedFile, setUploadedFile] = useState<IUploadedImage>();
 
   const onCheckDimensions = (file: File) => {
@@ -45,6 +43,7 @@ export const useUploadAsset = () => {
       toBeCheckedImage.src = url;
 
       try {
+        loadingContext.setIsLoading(true);
         const res = await onCheckDimensions(selectedFile);
         if (res) {
           const imageFormData = new FormData();
@@ -57,6 +56,8 @@ export const useUploadAsset = () => {
         }
       } catch (error) {
         return;
+      } finally {
+        loadingContext.setIsLoading(false);
       }
     }
   };
