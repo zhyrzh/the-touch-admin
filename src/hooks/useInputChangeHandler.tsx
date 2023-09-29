@@ -1,4 +1,5 @@
 import { ChangeEvent, useState } from "react";
+import { IDropdownInputOption } from "../components/input/DropdownInput";
 
 const useInputChangeHandler = <T,>() => {
   const [data, setData] = useState<T>();
@@ -12,9 +13,20 @@ const useInputChangeHandler = <T,>() => {
     }));
   };
 
+  const onDropdownInputChangeHandler = (
+    option: IDropdownInputOption,
+    inputName: string
+  ) => {
+    setData((prevData: any) => ({
+      ...prevData,
+      [inputName]: option.name,
+    }));
+  };
+
   return {
     data,
     onInputChangeHandler,
+    onDropdownInputChangeHandler,
   };
 };
 
