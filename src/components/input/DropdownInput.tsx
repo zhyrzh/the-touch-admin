@@ -1,4 +1,5 @@
 import { FC, useEffect, useState, useRef } from "react";
+import { IError } from "../../utils";
 
 // const dummyItems = [
 //   {
@@ -15,8 +16,8 @@ import { FC, useEffect, useState, useRef } from "react";
 //   },
 // ];
 
-interface IDropdownInputOption {
-  email: string;
+export interface IDropdownInputOption {
+  key: string;
   name: string;
 }
 
@@ -26,6 +27,9 @@ interface IDropdownInputProps {
   isMulti: boolean;
   isSearchable: any;
   onChange: any;
+  errors: Array<IError>;
+  name: string;
+  removeErrors: (name: string) => void;
 }
 
 const DropdownInput: FC<IDropdownInputProps> = ({
@@ -34,6 +38,9 @@ const DropdownInput: FC<IDropdownInputProps> = ({
   isMulti,
   isSearchable,
   onChange,
+  errors,
+  name,
+  removeErrors,
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [selectedValue, setSelectedValue] = useState<any>(
@@ -74,7 +81,7 @@ const DropdownInput: FC<IDropdownInputProps> = ({
       return (
         <div className="dropdown-tags">
           {selectedValue.map((option: IDropdownInputOption) => (
-            <div key={option.email} className="dropdown-tag-item">
+            <div key={option.key} className="dropdown-tag-item">
               {option.name}
               <span
                 onClick={(e) => onTagRemove(e, option)}
@@ -87,12 +94,12 @@ const DropdownInput: FC<IDropdownInputProps> = ({
         </div>
       );
     }
-    return selectedValue.label;
+    return selectedValue.name;
   };
 
   const removeOption = (option: IDropdownInputOption) => {
     return selectedValue.filter(
-      (o: IDropdownInputOption) => o.email !== option.email
+      (o: IDropdownInputOption) => o.key !== option.key
     );
   };
 
@@ -108,7 +115,7 @@ const DropdownInput: FC<IDropdownInputProps> = ({
     if (isMulti) {
       if (
         selectedValue.findIndex(
-          (o: IDropdownInputOption) => o.email === option.email
+          (o: IDropdownInputOption) => o.key === option.key
         ) >= 0
       ) {
         newValue = removeOption(option);
@@ -119,15 +126,14 @@ const DropdownInput: FC<IDropdownInputProps> = ({
       newValue = option;
     }
     setSelectedValue(newValue);
-    onChange(newValue);
+    onChange(newValue, name);
   };
 
   const isSelected = (option: IDropdownInputOption) => {
     if (isMulti) {
       return (
-        selectedValue.filter(
-          (o: IDropdownInputOption) => o.email === option.email
-        ).length > 0
+        selectedValue.filter((o: IDropdownInputOption) => o.key === option.key)
+          .length > 0
       );
     }
 
@@ -135,7 +141,7 @@ const DropdownInput: FC<IDropdownInputProps> = ({
       return false;
     }
 
-    return selectedValue.value === option.email;
+    return selectedValue.value === option.key;
   };
 
   const onSearch = (e: any) => {
@@ -147,40 +153,68 @@ const DropdownInput: FC<IDropdownInputProps> = ({
       return options;
     }
 
-    return options.filter(
-      (option: IDropdownInputOption) =>
-        option.name?.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0
+    return options.filter((option: IDropdownInputOption) =>
+      option.name?.toLowerCase().includes(searchValue.toLowerCase())
     );
   };
 
   return (
-    <div className="dropdown-container">
-      {/* {console.log(selectedValue, "check selected daw")} */}
-      <div ref={inputRef} onClick={handleInputClick} className="dropdown-input">
-        <div className="dropdown-selected-value">{getDisplay()}</div>
-        <div className="dropdown-tools">
-          <div className="dropdown-tool">v</div>
+    <>
+      <div
+        className="auth__input-container auth__dropdown"
+        style={
+          errors.findIndex((err) => err.for === name) > -1
+            ? { border: "1px solid red" }
+            : undefined
+        }
+      >
+        <div
+          ref={inputRef}
+          onClick={(e) => {
+            handleInputClick(e);
+            if (errors.findIndex((err) => err.for === name) > -1) {
+              removeErrors(name);
+            }
+          }}
+          className="auth__dropdown-input"
+        >
+          <div className="dropdown-selected-value">{getDisplay()}</div>
+          <div className="">
+            <div className="">v</div>
+          </div>
         </div>
+        {showMenu && (
+          <div className="dropdown-menu">
+            {isSearchable && (
+              <div className="search-box">
+                <input
+                  onChange={onSearch}
+                  value={searchValue}
+                  ref={searchRef}
+                />
+              </div>
+            )}
+            {getOptions().map((option: IDropdownInputOption) => (
+              <div
+                onClick={() => onItemClick(option)}
+                key={option.key}
+                className={`dropdown-item ${isSelected(option) && "selected"}`}
+              >
+                {option?.name}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-      {showMenu && (
-        <div className="dropdown-menu">
-          {isSearchable && (
-            <div className="search-box">
-              <input onChange={onSearch} value={searchValue} ref={searchRef} />
-            </div>
-          )}
-          {getOptions().map((option: IDropdownInputOption) => (
-            <div
-              onClick={() => onItemClick(option)}
-              key={option.email}
-              className={`dropdown-item ${isSelected(option) && "selected"}`}
-            >
-              {option?.name}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+      {errors.findIndex((err) => err.for === name) > -1 ? (
+        <p
+          className="auth__condition-text"
+          style={{ marginTop: "2px", color: "red", marginBottom: "-15px" }}
+        >
+          {errors[errors.findIndex((err) => err.for === name)].message}
+        </p>
+      ) : null}
+    </>
   );
 };
 
