@@ -8,6 +8,9 @@ import TextInput from "../../components/input/TextInput";
 import { useInputValidator } from "../../hooks/useInputValidator";
 import { IUploadedImage } from "../../hooks/useUploadImage";
 import { MessageContext } from "../../stores/message";
+import DropdownInput from "../../components/input/DropdownInput";
+import { courseOptions, posOptions } from "../../constants";
+
 interface ISetupProfileTextInput {
   firstName: string;
   lastName: string;
@@ -24,7 +27,7 @@ const SetupProfile: FC<any> = () => {
     url: string;
   }>();
 
-  const { data, onInputChangeHandler } =
+  const { data, onInputChangeHandler, onDropdownInputChangeHandler } =
     useInputChangeHandler<ISetupProfileTextInput>();
 
   const { errors, removeErrors, validateInputs } =
@@ -46,14 +49,14 @@ const SetupProfile: FC<any> = () => {
 
   const onSetupProfile = async () => {
     const errorCount = validateInputs();
-    if (profileImage && errorCount === 0) {
+    if (profileImage?.publicId && errorCount === 0) {
       authContext.setupProfile({
         ...data,
         email: authContext.user?.email,
         profileImage,
       });
     } else {
-      if (!profileImage) {
+      if (!profileImage?.publicId) {
         messageContext.onAddMessage(
           "Please add a profile image before submitting"
         );
@@ -69,106 +72,101 @@ const SetupProfile: FC<any> = () => {
   };
 
   return (
-    <>
-      {authContext.responseMessage
-        ? messageContext.onAddMessage(authContext.responseMessage)
-        : null}
-      <div className="auth" style={{ marginTop: "90px" }}>
-        <div className="auth__card-container">
-          <h1 className="auth__title">Setup your profile</h1>
-          <h3 className="auth__sub-title">
-            Fill up details to setup your profile
-          </h3>
-          <div
-            className="auth__user-profile-image-container"
-            onClick={() => {
-              if (fileUploadRef.current) {
-                fileUploadRef.current.click();
-              }
-            }}
-            style={{
-              backgroundColor:
-                uploadedFiles.length >= 1 ? "transparent" : "#d9d9d9",
-            }}
-          >
-            {profileImage ? (
-              <div
-                style={{
-                  borderRadius: "100%",
-                }}
-              >
-                <img
-                  className="auth__user-profile-image"
-                  src={profileImage.url}
-                  alt=""
-                />
-              </div>
-            ) : null}
-          </div>
-          <FileInput
-            uploadedFiles={uploadedFiles}
-            setUploadedFiles={(data: any) =>
-              setUploadedFiles((_prevFiles: any) => [data])
+    <div className="auth" style={{ marginTop: "90px" }}>
+      <div className="auth__card-container">
+        <h1 className="auth__title">Setup your profile</h1>
+        <h3 className="auth__sub-title">
+          Fill up details to setup your profile
+        </h3>
+        <div
+          className="auth__user-profile-image-container"
+          onClick={() => {
+            if (fileUploadRef.current) {
+              fileUploadRef.current.click();
             }
-            ref={fileUploadRef}
-            onAddAsset={onAddAsset}
-            isHidden
-          />
-          <TextInput
-            name="firstName"
-            placeholder="First Name"
-            value={data?.firstName!}
-            type="text"
-            errors={errors}
-            onInputChangeHandler={onInputChangeHandler}
-            removeErrors={(name: string) => {
-              removeErrors(name);
-            }}
-          />
-          <TextInput
-            name="lastName"
-            placeholder="Last Name"
-            value={data?.lastName!}
-            errors={errors}
-            onInputChangeHandler={onInputChangeHandler}
-            removeErrors={(name: string) => {
-              removeErrors(name);
-            }}
-          />
-          <TextInput
-            name="course"
-            placeholder="Course"
-            value={data?.course!}
-            errors={errors}
-            onInputChangeHandler={onInputChangeHandler}
-            removeErrors={(name: string) => {
-              removeErrors(name);
-            }}
-          />
-          <TextInput
-            name="position"
-            placeholder="Position"
-            value={data?.position!}
-            errors={errors}
-            onInputChangeHandler={onInputChangeHandler}
-            removeErrors={(name: string) => {
-              removeErrors(name);
-            }}
-          />
-          <div className={`auth__button-container `}>
-            <button className="auth__button" onClick={() => onSetupProfile()}>
-              Save
-            </button>
-          </div>
+          }}
+          style={{
+            backgroundColor:
+              uploadedFiles.length >= 1 ? "transparent" : "#d9d9d9",
+          }}
+        >
+          {profileImage ? (
+            <div
+              style={{
+                borderRadius: "100%",
+              }}
+            >
+              <img
+                className="auth__user-profile-image"
+                src={profileImage.url}
+                alt=""
+                draggable={false}
+              />
+            </div>
+          ) : null}
         </div>
-        <img
-          className="auth__page-image"
-          src={LogoLg}
-          alt=""
-          draggable={false}
+        <FileInput
+          uploadedFiles={uploadedFiles}
+          setUploadedFiles={(data: any) =>
+            setUploadedFiles((_prevFiles: any) => [data])
+          }
+          ref={fileUploadRef}
+          onAddAsset={onAddAsset}
+          isHidden
         />
+        <TextInput
+          name="firstName"
+          placeholder="First Name"
+          value={data?.firstName!}
+          type="text"
+          errors={errors}
+          onInputChangeHandler={onInputChangeHandler}
+          removeErrors={(name: string) => {
+            removeErrors(name);
+          }}
+        />
+        <TextInput
+          name="lastName"
+          placeholder="Last Name"
+          value={data?.lastName!}
+          errors={errors}
+          onInputChangeHandler={onInputChangeHandler}
+          removeErrors={(name: string) => {
+            removeErrors(name);
+          }}
+        />
+        <DropdownInput
+          isSearchable={true}
+          isMulti={false}
+          placeHolder="Course"
+          options={courseOptions}
+          onChange={onDropdownInputChangeHandler}
+          errors={errors}
+          name="course"
+          removeErrors={(name: string) => {
+            removeErrors(name);
+          }}
+        />
+        <DropdownInput
+          isSearchable={true}
+          isMulti={false}
+          placeHolder="Position"
+          options={posOptions}
+          onChange={onDropdownInputChangeHandler}
+          errors={errors}
+          name="position"
+          removeErrors={(name: string) => {
+            removeErrors(name);
+          }}
+        />
+        <div className={`auth__button-container `}>
+          <button className="auth__button" onClick={() => onSetupProfile()}>
+            Save
+          </button>
+        </div>
       </div>
-    </>
+      <img className="auth__page-image" src={LogoLg} alt="" draggable={false} />
+    </div>
   );
 };
 
