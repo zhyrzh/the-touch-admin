@@ -2,6 +2,7 @@ import { FC, createContext, useState, useEffect, useContext } from "react";
 import { authAPI, userAPI } from "../api";
 import { useNavigate } from "react-router-dom";
 import { MessageContext } from "./message";
+import { LoadingContext } from "./loading";
 
 export interface IUser {
   email: string;
@@ -12,8 +13,6 @@ export interface IUser {
 
 export interface IAuthContext {
   user?: IUser | null;
-  loading: boolean;
-  responseMessage: string;
   login: (body: unknown) => void;
   register: (body: unknown) => void;
   setupProfile: (body: any) => void;
@@ -25,10 +24,9 @@ export const AuthContext = createContext<IAuthContext>(
 
 const AuthContextProvider: FC<{ children: any }> = ({ children }) => {
   const messageContext = useContext(MessageContext);
+  const loadingContext = useContext(LoadingContext);
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState<boolean>(false);
-  const [responseMessage, setResponseMessage] = useState<string>("");
   const [user, setUser] = useState<IUser | null>();
 
   useEffect(() => {
@@ -46,15 +44,16 @@ const AuthContextProvider: FC<{ children: any }> = ({ children }) => {
         setUser(response.profile);
       }
     } catch (error) {
-      console.log("triggered?");
       localStorage.removeItem("accessToken");
       navigate("/auth/login");
+    } finally {
+      loadingContext.setIsLoading(false);
     }
   };
 
   const login = async (body: any) => {
     try {
-      setLoading(true);
+      loadingContext.setIsLoading(true);
       const response: any = await authAPI.login(body);
       if (response?.payload) {
         localStorage.setItem("accessToken", response.payload.access_token);
@@ -67,20 +66,15 @@ const AuthContextProvider: FC<{ children: any }> = ({ children }) => {
         }
       }
     } catch (error: any) {
-      // console.log(error.message, "ay check daw");
-      // setResponseMessage(error.message);
       messageContext.onAddMessage(error.message);
-      setTimeout(() => {
-        setResponseMessage("");
-      }, 2000);
     } finally {
-      setLoading(false);
+      loadingContext.setIsLoading(false);
     }
   };
 
   const setupProfile = async (body: any) => {
     try {
-      setLoading(true);
+      loadingContext.setIsLoading(true);
       const response = await userAPI.setupProfile(body);
       if (response?.payload) {
         // localStorage.setItem("accessToken", response.payload.access_token);
@@ -92,50 +86,35 @@ const AuthContextProvider: FC<{ children: any }> = ({ children }) => {
           navigate("/");
         }
       } else {
-        setResponseMessage(response.message);
-        setTimeout(() => {
-          setResponseMessage("");
-        }, 2000);
+        messageContext.onAddMessage(response.message);
       }
     } catch (error: any) {
-      setResponseMessage(error.message);
-      setTimeout(() => {
-        setResponseMessage("");
-      }, 2000);
+      messageContext.onAddMessage(error.message);
     } finally {
-      setLoading(false);
+      loadingContext.setIsLoading(false);
     }
   };
 
   const register = async (body: any) => {
     try {
-      setLoading(true);
+      loadingContext.setIsLoading(true);
       const data = await authAPI.register(body);
       if (!data.error) {
         localStorage.setItem("accessToken", data.payload.access_token);
         setUser(data.payload.profile);
         navigate("/user/setup-profile");
       } else {
-        setTimeout(() => {
-          setResponseMessage("");
-        }, 2000);
-        setResponseMessage(data.message);
+        messageContext.onAddMessage(data.message);
       }
     } catch (error: any) {
-      // setResponseMessage(error.message);
       messageContext.onAddMessage(error.message);
-      setTimeout(() => {
-        setResponseMessage("");
-      }, 2000);
     } finally {
-      setLoading(false);
+      loadingContext.setIsLoading(false);
     }
   };
 
   return (
-    <AuthContext.Provider
-      value={{ user, loading, responseMessage, login, register, setupProfile }}
-    >
+    <AuthContext.Provider value={{ user, login, register, setupProfile }}>
       {children}
     </AuthContext.Provider>
   );
