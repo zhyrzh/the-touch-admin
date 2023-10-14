@@ -31,7 +31,12 @@ const FileInputv2 = () => {
             Drag and drop a file here <br />
             or
           </p>
-          <input type="file" onChange={handleFileSelect} ref={fileInputRef} />
+          <input
+            type="file"
+            onChange={handleFileSelect}
+            ref={fileInputRef}
+            accept="image/*"
+          />
           <button
             className="drag-container__button"
             onClick={() => {
