@@ -21,7 +21,8 @@ const TextInput: FC<ITextInput> = ({
   removeErrors,
 }) => {
   return (
-    <div className="auth__input-container">
+    <div className="text-input">
+      <p className="text-input__label">{placeholder}</p>
       <input
         onChange={(event: ChangeEvent<HTMLInputElement>) => {
           if (errors.findIndex((err) => err.for === name) > -1) {
@@ -31,9 +32,8 @@ const TextInput: FC<ITextInput> = ({
         }}
         type={type}
         name={name}
-        placeholder={placeholder}
         value={value ? value : ""}
-        className="auth__input"
+        className="text-input__input"
         autoComplete="off"
         style={
           errors.findIndex((err) => err.for === name) > -1
