@@ -35,6 +35,10 @@ export const posOptions = [
     name: "Photojournalist",
   },
   {
+    key: "graphics-artist",
+    name: "Graphics Artist",
+  },
+  {
     key: "sports-writer",
     name: "Sports Writer",
   },
