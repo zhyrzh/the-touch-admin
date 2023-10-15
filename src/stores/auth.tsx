@@ -11,11 +11,16 @@ export interface IUser {
   position: string;
 }
 
+interface IUSerByPosition {
+  name: string;
+  key: string;
+}
 export interface IAuthContext {
   user?: IUser | null;
   login: (body: unknown) => void;
   register: (body: unknown) => void;
   setupProfile: (body: any) => void;
+  getAllByRole: (position: string) => Promise<IUSerByPosition[]>;
 }
 
 export const AuthContext = createContext<IAuthContext>(
@@ -113,8 +118,32 @@ const AuthContextProvider: FC<{ children: any }> = ({ children }) => {
     }
   };
 
+  const getAllByRole = async (role: string): Promise<IUSerByPosition[]> => {
+    try {
+      loadingContext.setIsLoading(true);
+      const res = await userAPI.getAllByPosition(role);
+      return res.map((item: any) => ({
+        name: `${item.profile.firstName} ${item.profile.lastName}`,
+        key: item.profile.email,
+      }));
+    } catch (error) {
+      return [] as IUSerByPosition[];
+    } finally {
+      loadingContext.setIsLoading(false);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, register, setupProfile }}>
+    <AuthContext.Provider
+      value={{
+        user,
+
+        login,
+        register,
+        setupProfile,
+        getAllByRole,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
