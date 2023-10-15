@@ -16,17 +16,14 @@
 .dropdown-menu {
   position: absolute;
   transform: translateY(54px);
-  width: 100%;
   border-radius: 10px;
   overflow: auto;
   max-height: 150px;
   background-color: #fff;
-  z-index: 99;
+  z-index: 10;
   border: 1px solid #000;
-}
-
-.dropdown-menu::-webkit-scrollbar {
-  display: none;
+  inset: 0;
+  height: 120px;
 }
 
 .dropdown-item {

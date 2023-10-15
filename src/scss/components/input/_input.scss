@@ -1,0 +1,53 @@
+.text-input {
+  width: 100%;
+
+  &__label {
+    font-size: 14px;
+    font-weight: normal;
+  }
+
+  &__input {
+    display: block;
+    width: 100%;
+    border-radius: 10px;
+    margin-top: 7px;
+    height: 40px;
+    display: block;
+    padding-inline: 10px;
+  }
+
+  &:not(:nth-of-type(1)) {
+    margin-top: 15px;
+  }
+}
+
+.ql-editor {
+  height: 250px;
+  max-height: 250px;
+  overflow: auto;
+}
+
+.ql-toolbar.ql-snow {
+  border-bottom: 1px solid black;
+}
+.quill {
+  border: 1px solid black;
+  overflow: hidden;
+}
+
+// Transfer to page directory dapat
+.article-add-edit {
+  max-width: 1400px;
+  margin-inline: auto;
+  &__two-col {
+    margin-top: 15px;
+    display: flex;
+  }
+  &__two-col-item {
+    width: 100%;
+
+    &:not(:nth-of-type(1)) {
+      margin-left: 15px;
+    }
+  }
+}

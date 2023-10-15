@@ -1,0 +1,36 @@
+.drag-and-drop {
+  width: 100%;
+  ul {
+    padding-top: 10px;
+    padding-left: 15px;
+    li {
+      list-style: none;
+    }
+  }
+}
+
+.drag-container {
+  margin-top: 15px;
+  background: #fff;
+  padding: 3em 5em;
+  border-radius: 0.5em;
+  border: 1px dashed black;
+  width: 100%;
+
+  &--dragged {
+    border: 1px dashed yellowgreen;
+  }
+
+  &__button {
+    margin-inline: auto;
+  }
+
+  input {
+    display: none;
+  }
+
+  h1 {
+    font-size: 24px;
+    font-weight: normal;
+  }
+}

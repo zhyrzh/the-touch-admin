@@ -39,13 +39,15 @@
 
   &__dropdown {
     border: 1px solid black;
-    height: 50px;
+    height: 40px;
     display: flex;
     padding-right: 10px;
     font-size: 12px;
+    margin-top: 7px;
   }
 
   &__dropdown-input {
+    position: relative;
     width: 100%;
     padding-left: 10px;
     display: flex;
