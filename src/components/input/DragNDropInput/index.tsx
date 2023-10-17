@@ -1,19 +1,28 @@
-import { useRef } from "react";
+import {
+  useRef,
+  FC,
+  ChangeEventHandler,
+  DragEventHandler,
+  useState,
+} from "react";
 import useDragAndDrop from "./useDragNdrop";
+import { name } from "@cloudinary/url-gen/actions/namedTransformation";
+import Backdrop from "../../UI/Backdrop";
+import { cloudinary } from "../../../configs/cloudinary";
 
-const FileInputv2 = () => {
+const FileInputv2: FC<{
+  onUploadImage: ChangeEventHandler;
+  onUploadDraggedImage: DragEventHandler;
+  imageList: any[];
+}> = ({ onUploadImage, onUploadDraggedImage, imageList }) => {
+  const [selectedImg, setSelectedImg] = useState("");
+
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const {
-    isDragging,
-    imageList,
-    handleFileDrop,
-    setIsDragging,
-    handleFileSelect,
-  } = useDragAndDrop();
+  const { isDragging, setIsDragging } = useDragAndDrop();
 
   return (
     <div className="drag-and-drop">
+      {selectedImg && <Backdrop url={selectedImg} />}
       <div
         className={
           !isDragging
@@ -24,7 +33,10 @@ const FileInputv2 = () => {
           e.preventDefault();
           setIsDragging(true);
         }}
-        onDrop={handleFileDrop}
+        onDrop={(e) => {
+          onUploadDraggedImage(e);
+          setIsDragging(false);
+        }}
       >
         <div>
           <p style={{ textAlign: "center" }}>
@@ -33,7 +45,7 @@ const FileInputv2 = () => {
           </p>
           <input
             type="file"
-            onChange={handleFileSelect}
+            onChange={onUploadImage}
             ref={fileInputRef}
             accept="image/*"
           />
@@ -48,10 +60,28 @@ const FileInputv2 = () => {
         </div>
       </div>
       {imageList.length >= 1 ? (
-        <ul>
-          {imageList.map((img) => (
-            <li key={img.name}>{img.name}</li>
-          ))}
+        <ul className="">
+          {imageList.map((img) => {
+            const resizedImg = cloudinary
+              .image(img.publicId)
+              .namedTransformation(name("for-list"));
+
+            return (
+              <li key={img.id}>
+                <img src={resizedImg.toURL()} alt="" />
+                <p style={{ marginLeft: "20px" }}>{img.filename}</p>
+                {/* to be replaced with icon */}
+                <p
+                  className="drag-and-drop__list-item-action-button"
+                  onClick={() => setSelectedImg(img.url)}
+                >
+                  View
+                </p>
+                {/* to be replaced with icon */}
+                <p className="drag-and-drop__list-item-action-button">Delete</p>
+              </li>
+            );
+          })}
         </ul>
       ) : null}
     </div>
