@@ -1,10 +1,11 @@
 import { FormEvent, useState } from "react";
 import useInputChangeHandler from "../../../hooks/useInputChangeHandler";
+
+import { articleAPI } from "../../../api/article";
+import DropdownInput from "../../../components/input/DropdownInput";
 import FileInput, {
   IUploadImageResponse,
 } from "../../../components/input/FileInput";
-import { articleAPI } from "../../../api/article";
-import DropdownInput from "../../../components/input/DropdownInput";
 
 interface IArticleFields {
   category: string;
@@ -37,9 +38,9 @@ const AddArticle = () => {
     Array<IUploadImageResponse>
   >([]);
   const options = [
-    { email: "admin1@gmail.com", name: "John Doe" },
-    { email: "admin2@gmail.com", name: "Jane Doe" },
-    { email: "admin3@gmail.com", name: "Juan Doe" },
+    { key: "admin1@gmail.com", name: "John Doe" },
+    { key: "admin2@gmail.com", name: "Jane Doe" },
+    { key: "admin3@gmail.com", name: "Juan Doe" },
   ];
 
   const onSubmit = async (event: FormEvent) => {
@@ -79,6 +80,9 @@ const AddArticle = () => {
           onChange={onInputChangeHandler}
         />
         <DropdownInput
+          errors={[]}
+          name="photoJournalist"
+          removeErrors={() => console.log()}
           isSearchable
           isMulti={true}
           placeHolder="Author"
@@ -91,6 +95,9 @@ const AddArticle = () => {
           }
         />
         <DropdownInput
+          errors={[]}
+          name="photoJournalist"
+          removeErrors={() => console.log()}
           isSearchable
           isMulti={true}
           placeHolder="Graphics Artist"
@@ -104,6 +111,9 @@ const AddArticle = () => {
           }}
         />
         <DropdownInput
+          errors={[]}
+          name="photoJournalist"
+          removeErrors={() => console.log()}
           isSearchable
           isMulti={true}
           placeHolder="Photo Journalist"
@@ -121,6 +131,7 @@ const AddArticle = () => {
             setUploadedFiles((prevFiles: any) => [...prevFiles, data])
           }
           uploadedFiles={uploadedFiles}
+          onAddAsset={() => console.log("something")}
         />
         <input
           type="datetime-local"
