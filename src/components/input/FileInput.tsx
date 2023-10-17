@@ -21,7 +21,7 @@ type Ref = {
 
 const FileInput = forwardRef<Ref, IFileInputProps>(
   ({ onAddAsset, uploadedFiles, isHidden = false }, ref) => {
-    const { onUploadFile, uploadedFile } = useUploadAsset();
+    const { onUploadProfileImage, uploadedFile } = useUploadAsset();
     const inputRef = useRef<HTMLInputElement>(null);
 
     useImperativeHandle(ref, () => ({
@@ -38,7 +38,7 @@ const FileInput = forwardRef<Ref, IFileInputProps>(
       <div hidden={isHidden}>
         <input
           type="file"
-          onChange={onUploadFile}
+          onChange={onUploadProfileImage}
           accept="image/png, image/gif, image/jpeg"
           hidden={true}
           ref={inputRef}
