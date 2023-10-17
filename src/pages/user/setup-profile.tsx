@@ -1,7 +1,7 @@
 import { FC, useState, useContext, useEffect, useRef } from "react";
 import FileInput from "../../components/input/FileInput";
 import useInputChangeHandler from "../../hooks/useInputChangeHandler";
-import { AuthContext } from "../../stores/user";
+import { AuthContext } from "../../stores/auth.tsx";
 import { useNavigate } from "react-router-dom";
 import LogoLg from "../../assets/the-touch-logo-lg.png";
 import TextInput from "../../components/input/TextInput";
@@ -42,10 +42,10 @@ const SetupProfile: FC<any> = () => {
   const fileUploadRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (authContext.user !== null) {
+    if (authContext?.user !== null) {
       navigate("/");
     }
-  }, [authContext.user]);
+  }, [authContext?.user]);
 
   const onSetupProfile = async () => {
     const errorCount = validateInputs();
@@ -121,9 +121,7 @@ const SetupProfile: FC<any> = () => {
           type="text"
           errors={errors}
           onInputChangeHandler={onInputChangeHandler}
-          removeErrors={(name: string) => {
-            removeErrors(name);
-          }}
+          removeErrors={removeErrors}
         />
         <TextInput
           name="lastName"
@@ -131,9 +129,7 @@ const SetupProfile: FC<any> = () => {
           value={data?.lastName!}
           errors={errors}
           onInputChangeHandler={onInputChangeHandler}
-          removeErrors={(name: string) => {
-            removeErrors(name);
-          }}
+          removeErrors={removeErrors}
         />
         <DropdownInput
           isSearchable={true}
@@ -143,9 +139,7 @@ const SetupProfile: FC<any> = () => {
           onChange={onDropdownInputChangeHandler}
           errors={errors}
           name="course"
-          removeErrors={(name: string) => {
-            removeErrors(name);
-          }}
+          removeErrors={removeErrors}
         />
         <DropdownInput
           isSearchable={true}
@@ -155,9 +149,7 @@ const SetupProfile: FC<any> = () => {
           onChange={onDropdownInputChangeHandler}
           errors={errors}
           name="position"
-          removeErrors={(name: string) => {
-            removeErrors(name);
-          }}
+          removeErrors={removeErrors}
         />
         <div className={`auth__button-container `}>
           <button className="auth__button" onClick={() => onSetupProfile()}>
