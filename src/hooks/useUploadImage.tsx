@@ -8,13 +8,18 @@ export interface IUploadedImage {
   id: number;
   publicId: string;
   url: string;
+  name: string;
 }
 
 export const useUploadAsset = () => {
   const messageContext = useContext(MessageContext);
   const loadingContext = useContext(LoadingContext);
   const [uploadedFile, setUploadedFile] = useState<IUploadedImage>();
+  const [uploadedFileList, setUploadedFileList] = useState<IUploadedImage[]>(
+    []
+  );
 
+  // Dimension checking for profile images
   const onCheckDimensions = (file: File) => {
     return new Promise((resolve, reject) => {
       const toBeCheckedImage = new Image();
@@ -35,7 +40,7 @@ export const useUploadAsset = () => {
     });
   };
 
-  const onUploadFile = async (event: ChangeEvent<HTMLInputElement>) => {
+  const onUploadProfileImage = async (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const selectedFile = event.target.files[0];
       const toBeCheckedImage = new Image();
@@ -48,7 +53,7 @@ export const useUploadAsset = () => {
         if (res) {
           const imageFormData = new FormData();
           imageFormData.append("image", selectedFile);
-          const data = await assetsAPI.uploadAsset(imageFormData, true);
+          const data = await assetsAPI.uploadProfileAsset(imageFormData, true);
           setUploadedFile((_prevUploaded) => ({
             ...data,
           }));
@@ -62,8 +67,52 @@ export const useUploadAsset = () => {
     }
   };
 
+  const onUploadImage = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const selectedFile = event.target.files[0];
+
+      try {
+        loadingContext.setIsLoading(true);
+        const imageFormData = new FormData();
+        imageFormData.append("image", selectedFile);
+        const data = await assetsAPI.uploadAsset(imageFormData, true);
+
+        setUploadedFileList((prevFileList) => [...prevFileList, data]);
+      } catch (error) {
+        return;
+      } finally {
+        loadingContext.setIsLoading(false);
+      }
+    }
+  };
+
+  const onUploadDraggedImage = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+
+    const file = e.dataTransfer.files[0];
+
+    if (file) {
+      const selectedFile = file;
+
+      try {
+        loadingContext.setIsLoading(true);
+        const imageFormData = new FormData();
+        imageFormData.append("image", selectedFile);
+        const data = await assetsAPI.uploadAsset(imageFormData, true);
+        setUploadedFileList((prevFileList) => [...prevFileList, data]);
+      } catch (error) {
+        return;
+      } finally {
+        loadingContext.setIsLoading(false);
+      }
+    }
+  };
+
   return {
     uploadedFile,
-    onUploadFile,
+    uploadedFileList,
+    onUploadProfileImage,
+    onUploadImage,
+    onUploadDraggedImage,
   } as const;
 };
