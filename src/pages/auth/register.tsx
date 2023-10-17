@@ -1,6 +1,6 @@
 import { FormEvent, useContext } from "react";
 import useInputChangeHandler from "../../hooks/useInputChangeHandler";
-import { AuthContext } from "../../stores/user";
+import { AuthContext } from "../../stores/auth";
 import LogoLg from "../../assets/the-touch-logo-lg.png";
 import { useNavigate } from "react-router-dom";
 import TextInput from "../../components/input/TextInput";

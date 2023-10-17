@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../stores/user";
+import { AuthContext } from "../../stores/auth";
 import useInputChangeHandler from "../../hooks/useInputChangeHandler";
 import LogoLg from "../../assets/the-touch-logo-lg.png";
 import TextInput from "../../components/input/TextInput";
@@ -72,9 +72,7 @@ const Login = () => {
           <>
             <p className="auth__forgot-password-button">Forgot Password?</p>
             <div className={`auth__button-container `} onClick={onLogin}>
-              <button className="auth__button" disabled={authContext.loading}>
-                LOGIN
-              </button>
+              <button className="auth__button">LOGIN</button>
             </div>
             <div className="auth__button-container">
               <button
