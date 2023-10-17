@@ -1,8 +1,8 @@
 import { useState, useEffect, useContext } from "react";
-import { AuthContext } from "../stores/user";
+import { UserContext } from "../stores/user";
 
 const useGenerateDropdownOptions = (optionKey: string) => {
-  const authContext = useContext(AuthContext);
+  const userContext = useContext(UserContext);
   const [options, setOptions] = useState<
     {
       name: string;
@@ -11,7 +11,7 @@ const useGenerateDropdownOptions = (optionKey: string) => {
   >([]);
 
   const fetchOptions = async () => {
-    const data = await authContext.getAllByRole(optionKey);
+    const data = await userContext.getAllByRole(optionKey);
     setOptions(data);
   };
 
