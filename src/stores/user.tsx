@@ -4,26 +4,19 @@ import { userAPI } from "../api";
 // import { MessageContext } from "./message";
 import { LoadingContext } from "./loading";
 
-export interface IUser {
-  email: string;
-  name: string;
-  course: string;
-  position: string;
-}
-
 interface IUSerByPosition {
   name: string;
   key: string;
 }
-export interface IAuthContext {
+export interface IUserContext {
   getAllByRole: (position: string) => Promise<IUSerByPosition[]>;
 }
 
-export const AuthContext = createContext<IAuthContext>(
-  null as unknown as IAuthContext
+export const UserContext = createContext<IUserContext>(
+  null as unknown as IUserContext
 );
 
-const AuthContextProvider: FC<{ children: any }> = ({ children }) => {
+const UserContextProvider: FC<{ children: any }> = ({ children }) => {
   //   const messageContext = useContext(MessageContext);
   const loadingContext = useContext(LoadingContext);
 
@@ -43,14 +36,14 @@ const AuthContextProvider: FC<{ children: any }> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider
+    <UserContext.Provider
       value={{
         getAllByRole,
       }}
     >
       {children}
-    </AuthContext.Provider>
+    </UserContext.Provider>
   );
 };
 
-export default AuthContextProvider;
+export default UserContextProvider;
