@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../stores/auth";
 import useInputChangeHandler from "../../hooks/useInputChangeHandler";
 import LogoLg from "../../assets/the-touch-logo-lg.png";
-import TextInput from "../../components/input/TextInput";
 import { useInputValidator } from "../../hooks/useInputValidator";
+import Input from "../../components/input/Input";
 
 const Login = () => {
   const authContext = useContext(AuthContext);
@@ -47,27 +47,22 @@ const Login = () => {
         <div className="auth__card-container">
           <h1 className="auth__title">Hello Journalist!</h1>
           <h3 className="auth__sub-title">Please login to continue</h3>
-          <TextInput
+          <Input
             name="email"
-            placeholder="Email"
+            label="Email"
             value={data?.email!}
-            type="text"
             errors={errors}
             onInputChangeHandler={onInputChangeHandler}
-            removeErrors={() => {
-              removeErrors("email");
-            }}
+            removeErrors={removeErrors}
           />
-          <TextInput
+          <Input
             name="password"
-            placeholder="password"
+            label="Password"
             value={data?.password!}
-            type="password"
             errors={errors}
             onInputChangeHandler={onInputChangeHandler}
-            removeErrors={() => {
-              removeErrors("password");
-            }}
+            removeErrors={removeErrors}
+            isPassword
           />
           <>
             <p className="auth__forgot-password-button">Forgot Password?</p>
