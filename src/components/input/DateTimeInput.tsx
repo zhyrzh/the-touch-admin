@@ -22,7 +22,6 @@ const DateTimeInput: FC<IInput> = ({ label, value, onChange }) => {
   }, [value]);
 
   const getValue = (): string => {
-    console.log(value, "value of created at");
     if (value !== undefined) {
       return value.toString();
     } else {
