@@ -35,7 +35,7 @@ const AuthContextProvider: FC<{ children: any }> = ({ children }) => {
 
   const getUserInfo = async () => {
     try {
-      const response: any = (await authAPI.getProfile()) as any;
+      const response: any = await authAPI.getProfile();
 
       if (response.profile === null) {
         navigate("/user/setup-profile");
