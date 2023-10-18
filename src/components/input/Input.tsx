@@ -29,9 +29,11 @@ const Input: FC<IInput> = ({
   };
 
   const onCheckErrors = (): React.CSSProperties | undefined => {
-    return errors.findIndex((err) => err.for === name) > -1
-      ? { border: "1px solid red" }
-      : undefined;
+    if (errors) {
+      return errors?.findIndex((err) => err.for === name) > -1
+        ? { border: "1px solid red" }
+        : undefined;
+    }
   };
 
   return (
@@ -46,11 +48,8 @@ const Input: FC<IInput> = ({
         ref={inputRef}
         style={onCheckErrors()}
       />
-      {errors.findIndex((err) => err.for === name) > -1 ? (
-        <p
-          className="auth__condition-text"
-          style={{ marginTop: "2px", color: "red" }}
-        >
+      {errors && errors.findIndex((err) => err.for === name) > -1 ? (
+        <p className="text-input__error-text">
           {errors[errors.findIndex((err) => err.for === name)].message}
         </p>
       ) : null}
