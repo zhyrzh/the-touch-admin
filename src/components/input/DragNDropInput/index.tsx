@@ -7,7 +7,7 @@ import {
 } from "react";
 import useDragAndDrop from "./useDragNdrop";
 import { name } from "@cloudinary/url-gen/actions/namedTransformation";
-import Backdrop from "../../UI/Backdrop";
+import ImageOverlay from "../../UI/ShowImageOverlay";
 import { cloudinary } from "../../../configs/cloudinary";
 
 const FileInputv2: FC<{
@@ -22,7 +22,7 @@ const FileInputv2: FC<{
 
   return (
     <div className="drag-and-drop">
-      {selectedImg && <Backdrop url={selectedImg} />}
+      {selectedImg && <ImageOverlay url={selectedImg} />}
       <div
         className={
           !isDragging
