@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { FormEventHandler, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../stores/auth";
 import useInputChangeHandler from "../../hooks/useInputChangeHandler";
@@ -31,7 +31,8 @@ const Login = () => {
   }, []);
 
   // HTTP Request to login
-  const onLogin = () => {
+  const onLogin: FormEventHandler = (e) => {
+    e.preventDefault();
     const errorCount = validateInputs();
     if (errorCount === 0) {
       authContext.login({
@@ -44,26 +45,30 @@ const Login = () => {
   return (
     <>
       <div className="auth">
-        <div className="auth__card-container">
+        <form className="auth__card-container" onSubmit={onLogin}>
           <h1 className="auth__title">Hello Journalist!</h1>
           <h3 className="auth__sub-title">Please login to continue</h3>
-          <Input
-            name="email"
-            label="Email"
-            value={data?.email!}
-            errors={errors}
-            onInputChangeHandler={onInputChangeHandler}
-            removeErrors={removeErrors}
-          />
-          <Input
-            name="password"
-            label="Password"
-            value={data?.password!}
-            errors={errors}
-            onInputChangeHandler={onInputChangeHandler}
-            removeErrors={removeErrors}
-            isPassword
-          />
+          <div className="auth__input-container">
+            <Input
+              name="email"
+              label="Email"
+              value={data?.email!}
+              errors={errors}
+              onInputChangeHandler={onInputChangeHandler}
+              removeErrors={removeErrors}
+            />
+          </div>
+          <div className="auth__input-container">
+            <Input
+              name="password"
+              label="Password"
+              value={data?.password!}
+              errors={errors}
+              onInputChangeHandler={onInputChangeHandler}
+              removeErrors={removeErrors}
+              isPassword
+            />
+          </div>
           <>
             <p className="auth__forgot-password-button">Forgot Password?</p>
             <div className={`auth__button-container `} onClick={onLogin}>
@@ -78,7 +83,7 @@ const Login = () => {
               </button>
             </div>
           </>
-        </div>
+        </form>
         <img className="auth__page-image" src={LogoLg} alt="" />
       </div>
     </>
