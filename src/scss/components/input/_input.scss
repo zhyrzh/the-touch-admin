@@ -1,5 +1,6 @@
 .text-input {
   width: 100%;
+  position: relative;
 
   &__label {
     font-size: 14px;
@@ -16,8 +17,23 @@
     padding-inline: 10px;
   }
 
-  &:not(:nth-of-type(1)) {
-    margin-top: 15px;
+  &__error-text {
+    font-size: 12px;
+    color: orangered;
+    position: absolute;
+    bottom: -20px;
+
+    // &--green {
+    //   color: greenyellow;
+    // }
+
+    // &--red {
+    //   color: orangered;
+    // }
+
+    // &:not(:nth-of-type(1)) {
+    //   margin-top: 5px;
+    // }
   }
 }
 
