@@ -2,8 +2,8 @@ import { ChangeEvent, useState } from "react";
 import { IDropdownInputOption } from "../components/input/DropdownInput";
 import dayjs from "dayjs";
 
-const useInputChangeHandler = <T,>() => {
-  const [data, setData] = useState<T>();
+const useInputChangeHandler = <T,>(definedData: T) => {
+  const [data, setData] = useState<T>(definedData);
 
   const onInputChangeHandler = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -20,7 +20,42 @@ const useInputChangeHandler = <T,>() => {
   ) => {
     setData((prevData: any) => ({
       ...prevData,
-      [inputName]: option.name,
+      [inputName]: {
+        email: option.key,
+        name: option.label,
+      },
+    }));
+  };
+
+  const onMultiDropdownInputChangeHandler = (
+    option: IDropdownInputOption,
+    inputName: string
+  ) => {
+    if (
+      (data[inputName as keyof typeof data] as Array<any>)?.findIndex(
+        (o: IDropdownInputOption) => o.key === option.key
+      ) >= 0
+    ) {
+      setData((prevData: any) => ({
+        ...prevData,
+        [inputName]: prevData[inputName]?.filter(
+          (o: IDropdownInputOption) => o.key !== option.key
+        ),
+      }));
+    } else {
+      setData((prevData: any) => ({
+        ...prevData,
+        [inputName]: [...prevData[inputName], option],
+      }));
+    }
+  };
+
+  const onRemoveOption = (option: IDropdownInputOption, inputName: string) => {
+    setData((prevData: any) => ({
+      ...prevData,
+      [inputName]: prevData[inputName].filter(
+        (o: IDropdownInputOption) => o.key !== option.key
+      ),
     }));
   };
 
@@ -34,7 +69,9 @@ const useInputChangeHandler = <T,>() => {
   const onInputTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
     setData((prevData: any) => ({
       ...prevData,
-      [e.target.name]: dayjs(e.target.value).format("YYYY-MM-DD HH:mm:ss"),
+      [e.target.name]: dayjs(e.target.value)
+        .format("YYYY-MM-DD HH:mm:ss")
+        .toString(),
     }));
   };
 
@@ -42,8 +79,10 @@ const useInputChangeHandler = <T,>() => {
     data,
     onInputChangeHandler,
     onDropdownInputChangeHandler,
+    onMultiDropdownInputChangeHandler,
     onQuillChange,
     onInputTimeChange,
+    onRemoveOption,
   };
 };
 
