@@ -5,8 +5,8 @@ import { userAPI } from "../api";
 import { LoadingContext } from "./loading";
 
 interface IUSerByPosition {
-  name: string;
   key: string;
+  label: string;
 }
 export interface IUserContext {
   getAllByRole: (position: string) => Promise<IUSerByPosition[]>;
@@ -25,7 +25,7 @@ const UserContextProvider: FC<{ children: any }> = ({ children }) => {
       loadingContext.setIsLoading(true);
       const res = await userAPI.getAllByPosition(role);
       return res.map((item: any) => ({
-        name: `${item.profile.firstName} ${item.profile.lastName}`,
+        label: `${item.profile.firstName} ${item.profile.lastName}`,
         key: item.profile.email,
       }));
     } catch (error) {
