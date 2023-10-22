@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 
 interface IInput {
   label: string;
-  value: dayjs.Dayjs;
+  value: string;
   onChange: ChangeEventHandler;
 }
 
@@ -22,8 +22,8 @@ const DateTimeInput: FC<IInput> = ({ label, value, onChange }) => {
   }, [value]);
 
   const getValue = (): string => {
-    if (value !== undefined) {
-      return value.toString();
+    if (value !== "") {
+      return value;
     } else {
       return realTimeValue.format("YYYY-MM-DD HH:mm:ss").toString();
     }
