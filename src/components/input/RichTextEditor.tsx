@@ -13,7 +13,7 @@ const RichTextEditor: FC<IRichTextEditor> = ({ value, onChange }) => {
       <ReactQuill
         value={value}
         onChange={(value: string) => {
-          onChange(value, "body");
+          onChange(value, "content");
         }}
         modules={{
           toolbar: [
