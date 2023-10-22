@@ -1,149 +1,181 @@
-import { FormEvent, useState } from "react";
-import useInputChangeHandler from "../../../hooks/useInputChangeHandler";
-
-import { articleAPI } from "../../../api/article";
+import { useContext, useEffect, MouseEventHandler } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../../stores/auth";
+import Input from "../../../components/input/Input";
+import RichTextEditor from "../../../components/input/RichTextEditor";
 import DropdownInput from "../../../components/input/DropdownInput";
-import FileInput, {
-  IUploadImageResponse,
-} from "../../../components/input/FileInput";
+import useInputChangeHandler from "../../../hooks/useInputChangeHandler";
+import FileInputv2 from "../../../components/input/DragNDropInput";
+import { useInputValidator } from "../../../hooks/useInputValidator";
+import useGenerateDropdownOptions from "../../../hooks/useGenerateDropdownOptions";
+import DateTimeInput from "../../../components/input/DateTimeInput";
+import { useUploadAsset } from "../../../hooks/useUploadImage";
+import { ArticleContext } from "../../../stores/articles";
+import "react-quill/dist/quill.snow.css";
 
-interface IArticleFields {
+interface IUserInvolved {
+  key: string;
+  label: string;
+}
+interface IArticleDetails {
   category: string;
   headline: string;
   content: string;
-  author: {
-    id: string;
-    name: string;
-  };
-  graphicsArtist: {
-    id: string;
-    name: string;
-  };
-  photoJournalist: {
-    id: string;
-    name: string;
-  };
-  featuredImage: {
-    id: string;
-    url: string;
-  };
+  author: IUserInvolved[];
+  graphicsArtist?: IUserInvolved[];
+  photoJournalist?: IUserInvolved[];
   createdAt: string;
 }
 
-const AddArticle = () => {
-  const [fields, setFields] = useState<IArticleFields>();
-  const { data: inputData, onInputChangeHandler } =
-    useInputChangeHandler<IArticleFields>();
-  const [uploadedFiles, setUploadedFiles] = useState<
-    Array<IUploadImageResponse>
-  >([]);
-  const options = [
-    { key: "admin1@gmail.com", name: "John Doe" },
-    { key: "admin2@gmail.com", name: "Jane Doe" },
-    { key: "admin3@gmail.com", name: "Juan Doe" },
-  ];
+const Home = () => {
+  const authContext = useContext(AuthContext);
+  const articleContext = useContext(ArticleContext);
+  const navigate = useNavigate();
 
-  const onSubmit = async (event: FormEvent) => {
+  useEffect(() => {
+    if (authContext?.user === null) {
+      navigate("/user/setup-profile");
+    }
+  }, [authContext?.user]);
+
+  const {
+    data,
+    onQuillChange,
+    onInputTimeChange,
+    onInputChangeHandler,
+    onMultiDropdownInputChangeHandler,
+    onRemoveOption,
+  } = useInputChangeHandler<IArticleDetails>({
+    category: "",
+    content: "",
+    createdAt: "",
+    headline: "",
+    graphicsArtist: [],
+    photoJournalist: [],
+    author: [],
+  });
+
+  const { errors, removeErrors } = useInputValidator<IArticleDetails>({
+    content: "",
+    category: "",
+    createdAt: "",
+    headline: "",
+    graphicsArtist: [],
+    photoJournalist: [],
+    author: [],
+  });
+
+  const { onUploadImage, onUploadDraggedImage, uploadedFileList } =
+    useUploadAsset();
+
+  const [authoredByOpts] = useGenerateDropdownOptions("default");
+  const [graphicsByOpts] = useGenerateDropdownOptions("Graphics Artist");
+  const [photoJournalistOpts] = useGenerateDropdownOptions("Photojournalist");
+
+  const onSubmit: MouseEventHandler = async (event) => {
     event.preventDefault();
-    const articleData = await articleAPI.createArticle({
-      ...fields,
-      ...inputData,
-      featuredImages: uploadedFiles.map((file: IUploadImageResponse) => ({
-        publicId: file.publicId,
-        url: file.url,
-      })),
+    articleContext.createArticle({
+      ...data,
+      author: data.author,
+      photoJournalist: data.photoJournalist!,
+      graphicsArtist: data.graphicsArtist!,
+      uploadedFiles: uploadedFileList,
     });
-    console.log(articleData);
   };
 
   return (
-    <div>
-      {/* {console.log(fields, "check fields")} */}
-      <form onSubmit={onSubmit}>
-        <input
-          type="text"
+    <>
+      <div
+        className="article-add-edit"
+        style={{ paddingInline: "10px", paddingTop: "15px" }}
+      >
+        <Input
+          label="Category (Required)"
+          errors={errors}
           name="category"
-          value={inputData?.category ? inputData.category : ""}
-          onChange={onInputChangeHandler}
-          autoComplete="off"
+          onInputChangeHandler={onInputChangeHandler}
+          removeErrors={removeErrors}
+          value={data?.category!}
         />
-        <input
-          type="text"
+        <Input
+          label="Headline (Required)"
+          errors={errors}
           name="headline"
-          value={inputData?.headline ? inputData.headline : ""}
-          onChange={onInputChangeHandler}
-          autoComplete="off"
+          onInputChangeHandler={onInputChangeHandler}
+          removeErrors={removeErrors}
+          value={data?.headline!}
         />
-        <textarea
-          name="content"
-          value={inputData?.content ? inputData.content : ""}
-          onChange={onInputChangeHandler}
+        <RichTextEditor
+          placeHolder="Body (Required)"
+          value={data?.content!}
+          onChange={onQuillChange}
         />
-        <DropdownInput
-          errors={[]}
-          name="photoJournalist"
-          removeErrors={() => console.log()}
-          isSearchable
-          isMulti={true}
-          placeHolder="Author"
-          options={options}
-          onChange={(value: any) =>
-            setFields((prevData: any) => ({
-              ...prevData,
-              author: value,
-            }))
-          }
+        <div className="article-add-edit__two-col">
+          <div className="article-add-edit__two-col-item">
+            <DropdownInput
+              isSearchable={true}
+              isMulti={true}
+              placeHolder="Authored by (Required)"
+              name="author"
+              optionsKey="News Writer"
+              options={authoredByOpts}
+              errors={errors}
+              listValue={data.author!}
+              removeErrors={removeErrors}
+              onChange={onMultiDropdownInputChangeHandler}
+              onRemoveOption={onRemoveOption}
+              value={null}
+            />
+            <DropdownInput
+              isSearchable={true}
+              isMulti={true}
+              placeHolder="Graphics by"
+              name="graphicsArtist"
+              options={graphicsByOpts}
+              errors={errors}
+              listValue={data.graphicsArtist!}
+              onChange={onMultiDropdownInputChangeHandler}
+              removeErrors={removeErrors}
+              onRemoveOption={onRemoveOption}
+              value={null}
+            />
+          </div>
+          <div className="article-add-edit__two-col-item">
+            <DropdownInput
+              isSearchable={true}
+              isMulti={true}
+              placeHolder="Images by"
+              name="photoJournalist"
+              options={photoJournalistOpts}
+              errors={errors}
+              listValue={data.photoJournalist!}
+              onChange={onMultiDropdownInputChangeHandler}
+              removeErrors={removeErrors}
+              onRemoveOption={onRemoveOption}
+              value={null}
+            />
+            <DateTimeInput
+              label="Date and Time created"
+              value={data?.createdAt!}
+              onChange={onInputTimeChange}
+            />
+          </div>
+        </div>
+        <FileInputv2
+          onUploadImage={onUploadImage}
+          onUploadDraggedImage={onUploadDraggedImage}
+          imageList={uploadedFileList}
         />
-        <DropdownInput
-          errors={[]}
-          name="photoJournalist"
-          removeErrors={() => console.log()}
-          isSearchable
-          isMulti={true}
-          placeHolder="Graphics Artist"
-          options={options}
-          onChange={(value: any) => {
-            console.log("Graphics Artist: ", value);
-            setFields((prevData: any) => ({
-              ...prevData,
-              graphicsArtist: value,
-            }));
+        <button
+          onClick={(e) => {
+            onSubmit(e);
           }}
-        />
-        <DropdownInput
-          errors={[]}
-          name="photoJournalist"
-          removeErrors={() => console.log()}
-          isSearchable
-          isMulti={true}
-          placeHolder="Photo Journalist"
-          options={options}
-          onChange={(value: any) => {
-            console.log("Photo Journalist: ", value);
-            setFields((prevData: any) => ({
-              ...prevData,
-              photoJournalist: value,
-            }));
-          }}
-        />
-        <FileInput
-          setUploadedFiles={(data: any) =>
-            setUploadedFiles((prevFiles: any) => [...prevFiles, data])
-          }
-          uploadedFiles={uploadedFiles}
-          onAddAsset={() => console.log("something")}
-        />
-        <input
-          type="datetime-local"
-          name="createdAt"
-          value={inputData?.createdAt}
-          onChange={onInputChangeHandler}
-        />
-
-        <button type="submit">Add</button>
-      </form>
-    </div>
+        >
+          Submit
+        </button>
+      </div>
+    </>
   );
 };
 
-export default AddArticle;
+export default Home;
