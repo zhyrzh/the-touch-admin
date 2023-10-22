@@ -3,13 +3,18 @@ import ReactQuill from "react-quill";
 
 interface IRichTextEditor {
   value: string;
+  placeHolder: string;
   onChange: (value: string, name: string) => void;
 }
 
-const RichTextEditor: FC<IRichTextEditor> = ({ value, onChange }) => {
+const RichTextEditor: FC<IRichTextEditor> = ({
+  value,
+  placeHolder,
+  onChange,
+}) => {
   return (
     <div className="text-input">
-      <p className="text-input__label">Body</p>
+      <p className="text-input__label">{placeHolder}</p>
       <ReactQuill
         value={value}
         onChange={(value: string) => {
