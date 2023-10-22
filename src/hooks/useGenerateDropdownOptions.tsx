@@ -5,8 +5,8 @@ const useGenerateDropdownOptions = (optionKey: string) => {
   const userContext = useContext(UserContext);
   const [options, setOptions] = useState<
     {
-      name: string;
       key: string;
+      label: string;
     }[]
   >([]);
 
