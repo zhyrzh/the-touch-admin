@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, MouseEventHandler } from "react";
 import { AuthContext } from "../stores/auth";
 import { useNavigate } from "react-router-dom";
 import Input from "../components/input/Input";
@@ -10,24 +10,26 @@ import FileInputv2 from "../components/input/DragNDropInput";
 import { useInputValidator } from "../hooks/useInputValidator";
 import useGenerateDropdownOptions from "../hooks/useGenerateDropdownOptions";
 import DateTimeInput from "../components/input/DateTimeInput";
-import dayjs from "dayjs";
 import { useUploadAsset } from "../hooks/useUploadImage";
+import { ArticleContext } from "../stores/articles";
 
 interface IUserInvolved {
-  email: string;
-  name: string;
+  key: string;
+  label: string;
 }
 interface IArticleDetails {
+  category: string;
   headline: string;
-  body: string;
-  author: IUserInvolved;
-  graphicsArtist?: IUserInvolved;
-  photoJournalist?: IUserInvolved;
-  createdAt: dayjs.Dayjs;
+  content: string;
+  author: IUserInvolved[];
+  graphicsArtist?: IUserInvolved[];
+  photoJournalist?: IUserInvolved[];
+  createdAt: string;
 }
 
 const Home = () => {
   const authContext = useContext(AuthContext);
+  const articleContext = useContext(ArticleContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,10 +41,30 @@ const Home = () => {
   const {
     data,
     onQuillChange,
-    onDropdownInputChangeHandler,
     onInputTimeChange,
-  } = useInputChangeHandler<IArticleDetails>();
-  const { errors, removeErrors } = useInputValidator({});
+    onInputChangeHandler,
+    onMultiDropdownInputChangeHandler,
+    onRemoveOption,
+  } = useInputChangeHandler<IArticleDetails>({
+    category: "",
+    content: "",
+    createdAt: "",
+    headline: "",
+    graphicsArtist: [],
+    photoJournalist: [],
+    author: [],
+  });
+
+  const { errors, removeErrors } = useInputValidator<IArticleDetails>({
+    content: "",
+    category: "",
+    createdAt: "",
+    headline: "",
+    graphicsArtist: [],
+    photoJournalist: [],
+    author: [],
+  });
+
   const { onUploadImage, onUploadDraggedImage, uploadedFileList } =
     useUploadAsset();
 
@@ -50,49 +72,85 @@ const Home = () => {
   const [graphicsByOpts] = useGenerateDropdownOptions("Graphics Artist");
   const [photoJournalistOpts] = useGenerateDropdownOptions("Photojournalist");
 
+  const onSubmit: MouseEventHandler = async (event) => {
+    event.preventDefault();
+    try {
+      articleContext.createArticle({
+        ...data,
+        author: data.author,
+        photoJournalist: data.photoJournalist!,
+        graphicsArtist: data.graphicsArtist!,
+        uploadedFiles: uploadedFileList,
+      });
+    } catch (error) {}
+  };
+
   return (
     <>
-      {/* {console.log(uploadedFileList, "check uploaded")} */}
       <div
         className="article-add-edit"
         style={{ paddingInline: "10px", paddingTop: "15px" }}
       >
-        <Input label="Headline" />
-        <RichTextEditor value={data?.body!} onChange={onQuillChange} />
+        <Input
+          label="Category"
+          errors={errors}
+          name="category"
+          onInputChangeHandler={onInputChangeHandler}
+          removeErrors={removeErrors}
+          value={data?.category!}
+        />
+        <Input
+          label="Headline"
+          errors={errors}
+          name="headline"
+          onInputChangeHandler={onInputChangeHandler}
+          removeErrors={removeErrors}
+          value={data?.headline!}
+        />
+        <RichTextEditor value={data?.content!} onChange={onQuillChange} />
         <div className="article-add-edit__two-col">
           <div className="article-add-edit__two-col-item">
             <DropdownInput
               isSearchable={true}
-              isMulti={false}
+              isMulti={true}
               placeHolder="Authored by"
-              options={authoredByOpts}
-              onChange={onDropdownInputChangeHandler}
-              errors={errors}
               name="author"
-              removeErrors={removeErrors}
               optionsKey="News Writer"
+              options={authoredByOpts}
+              errors={errors}
+              listValue={data.author!}
+              removeErrors={removeErrors}
+              onChange={onMultiDropdownInputChangeHandler}
+              onRemoveOption={onRemoveOption}
+              value={null}
             />
             <DropdownInput
               isSearchable={true}
-              isMulti={false}
+              isMulti={true}
               placeHolder="Graphics by"
-              options={graphicsByOpts}
-              onChange={onDropdownInputChangeHandler}
-              errors={errors}
               name="graphicsArtist"
+              options={graphicsByOpts}
+              errors={errors}
+              listValue={data.graphicsArtist!}
+              onChange={onMultiDropdownInputChangeHandler}
               removeErrors={removeErrors}
+              onRemoveOption={onRemoveOption}
+              value={null}
             />
           </div>
           <div className="article-add-edit__two-col-item">
             <DropdownInput
               isSearchable={true}
-              isMulti={false}
+              isMulti={true}
               placeHolder="Images by"
-              options={photoJournalistOpts}
-              onChange={onDropdownInputChangeHandler}
-              errors={errors}
               name="photoJournalist"
+              options={photoJournalistOpts}
+              errors={errors}
+              listValue={data.photoJournalist!}
+              onChange={onMultiDropdownInputChangeHandler}
               removeErrors={removeErrors}
+              onRemoveOption={onRemoveOption}
+              value={null}
             />
             <DateTimeInput
               label="Date and Time created"
@@ -106,6 +164,13 @@ const Home = () => {
           onUploadDraggedImage={onUploadDraggedImage}
           imageList={uploadedFileList}
         />
+        <button
+          onClick={(e) => {
+            onSubmit(e);
+          }}
+        >
+          Submit
+        </button>
       </div>
     </>
   );
