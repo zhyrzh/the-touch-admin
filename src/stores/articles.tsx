@@ -4,6 +4,7 @@ import { IUploadedImage } from "../hooks/useUploadImage";
 import { LoadingContext } from "./loading";
 import { MessageContext } from "./message";
 import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 interface IUserInvolved {
   key: string;
@@ -33,6 +34,7 @@ const ArticleContextProvider: FC<{ children: any }> = ({ children }) => {
   const [articles, setArticles] = useState<IArticleDetails[]>([]);
   const loadingContext = useContext(LoadingContext);
   const messageContext = useContext(MessageContext);
+  const navigate = useNavigate();
 
   const getAllArticles = () => {};
 
@@ -58,6 +60,7 @@ const ArticleContextProvider: FC<{ children: any }> = ({ children }) => {
             ? body.createdAt
             : dayjs().format("YYYY-MM-DD HH:mm:ss").toString(),
       });
+      navigate("/");
     } catch (error: any) {
       error.message.map((msg: string) => messageContext.onAddMessage(msg));
     } finally {
