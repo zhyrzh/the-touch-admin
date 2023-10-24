@@ -20,10 +20,7 @@ const useInputChangeHandler = <T,>(definedData: T) => {
   ) => {
     setData((prevData: any) => ({
       ...prevData,
-      [inputName]: {
-        email: option.key,
-        name: option.label,
-      },
+      [inputName]: option.label,
     }));
   };
 
