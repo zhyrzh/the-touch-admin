@@ -13,8 +13,11 @@ const Home = () => {
   }, [authContext?.user]);
 
   return (
-    <div className="">
-      <h1>Home</h1>
+    <div className="home">
+      <div className="home__search-bar">
+        <input type="text" />
+        <button>Search</button>
+      </div>
     </div>
   );
 };
