@@ -86,7 +86,7 @@ const Home = () => {
   return (
     <>
       <div
-        className="article-add-edit"
+        className="article"
         style={{ paddingInline: "10px", paddingTop: "15px" }}
       >
         <Input
@@ -110,8 +110,8 @@ const Home = () => {
           value={data?.content!}
           onChange={onQuillChange}
         />
-        <div className="article-add-edit__two-col">
-          <div className="article-add-edit__two-col-item">
+        <div className="article__two-col">
+          <div className="article__two-col-item">
             <DropdownInput
               isSearchable={true}
               isMulti={true}
@@ -140,7 +140,7 @@ const Home = () => {
               value={null}
             />
           </div>
-          <div className="article-add-edit__two-col-item">
+          <div className="article__two-col-item">
             <DropdownInput
               isSearchable={true}
               isMulti={true}
@@ -166,13 +166,24 @@ const Home = () => {
           onUploadDraggedImage={onUploadDraggedImage}
           imageList={uploadedFileList}
         />
-        <button
-          onClick={(e) => {
-            onSubmit(e);
-          }}
-        >
-          Submit
-        </button>
+        <div className="article__two-col article__two-col--space-between">
+          <button
+            className="article__submit-btn article__submit-btn--no-fill"
+            onClick={(_e) => {
+              navigate("/");
+            }}
+          >
+            Back
+          </button>
+          <button
+            className="article__submit-btn"
+            onClick={(e) => {
+              onSubmit(e);
+            }}
+          >
+            Submit
+          </button>
+        </div>
       </div>
     </>
   );
