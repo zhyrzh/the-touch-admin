@@ -28,7 +28,12 @@ const SetupProfile: FC<any> = () => {
   }>();
 
   const { data, onInputChangeHandler, onDropdownInputChangeHandler } =
-    useInputChangeHandler<ISetupProfileTextInput>();
+    useInputChangeHandler<ISetupProfileTextInput>({
+      course: "",
+      firstName: "",
+      lastName: "",
+      position: "",
+    });
 
   const { errors, removeErrors, validateInputs } =
     useInputValidator<ISetupProfileTextInput>({
@@ -140,6 +145,11 @@ const SetupProfile: FC<any> = () => {
           errors={errors}
           name="course"
           removeErrors={removeErrors}
+          listValue={[]}
+          value={{
+            key: data.course!,
+            label: data.course!,
+          }}
         />
         <DropdownInput
           isSearchable={true}
@@ -150,6 +160,11 @@ const SetupProfile: FC<any> = () => {
           errors={errors}
           name="position"
           removeErrors={removeErrors}
+          listValue={[]}
+          value={{
+            key: data.position!,
+            label: data.position!,
+          }}
         />
         <div className={`auth__button-container `}>
           <button className="auth__button" onClick={() => onSetupProfile()}>
