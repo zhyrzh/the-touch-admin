@@ -1,21 +1,6 @@
 import { FC, useEffect, useState, useRef } from "react";
 import { IError } from "../../../utils";
 
-// const dummyItems = [
-//   {
-//     id: "admin1@gmail.com",
-//     name: "John Doe",
-//   },
-//   {
-//     id: "admin2@gmail.com",
-//     name: "Jane Doe",
-//   },
-//   {
-//     id: "admin3@gmail.com",
-//     name: "Juan Doe",
-//   },
-// ];
-
 export interface IDropdownInputOption {
   key: string;
   label: string;
@@ -33,7 +18,7 @@ interface IDropdownInputProps {
   value: IDropdownInputOption | null;
   listValue: IDropdownInputOption[];
   removeErrors: (name: string) => void;
-  onRemoveOption: (option: IDropdownInputOption, inputName: string) => void;
+  onRemoveOption?: (option: IDropdownInputOption, inputName: string) => void;
 }
 
 const DropdownInput: FC<IDropdownInputProps> = ({
@@ -100,7 +85,7 @@ const DropdownInput: FC<IDropdownInputProps> = ({
         </div>
       );
     } else {
-      value?.label;
+      return value?.label;
     }
   };
 
@@ -110,7 +95,9 @@ const DropdownInput: FC<IDropdownInputProps> = ({
 
   const onTagRemove = (e: any, option: IDropdownInputOption) => {
     e.stopPropagation();
-    onRemoveOption(option, name);
+    if (onRemoveOption) {
+      onRemoveOption(option, name);
+    }
   };
 
   const onItemClick = (option: IDropdownInputOption) => {
@@ -177,7 +164,8 @@ const DropdownInput: FC<IDropdownInputProps> = ({
           ref={inputRef}
           onClick={(e) => {
             handleInputClick(e);
-            if (errors.findIndex((err) => err.for === name) > -1) {
+            const hasErrors = errors.findIndex((err) => err.for === name) > -1;
+            if (hasErrors) {
               removeErrors(name);
             }
           }}
