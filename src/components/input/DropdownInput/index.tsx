@@ -173,7 +173,7 @@ const DropdownInput: FC<IDropdownInputProps> = ({
         >
           <div className="dropdown-selected-value">{getDisplay()}</div>
           <div className="">
-            <div className="">v</div>
+            <div className="dropdown-down-button">v</div>
           </div>
           {showMenu && (
             <div className="dropdown-menu">
