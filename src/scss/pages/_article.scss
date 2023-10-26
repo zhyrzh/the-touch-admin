@@ -33,3 +33,25 @@
     }
   }
 }
+
+.article-home {
+  max-width: 1260px;
+  margin-inline: auto;
+
+  &__search-bar {
+    margin-top: 15px;
+    display: flex;
+    height: 30px;
+
+    input {
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    button {
+      margin-left: 20px;
+      padding-inline: 25px;
+      border-radius: 10px;
+    }
+  }
+}

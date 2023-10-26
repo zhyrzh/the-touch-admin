@@ -1,7 +1,10 @@
 const Article = () => {
   return (
-    <div>
-      <h1>Article List</h1>
+    <div className="article-home">
+      <div className="article-home__search-bar">
+        <input type="text" />
+        <button>Search</button>
+      </div>
     </div>
   );
 };
