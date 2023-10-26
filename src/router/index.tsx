@@ -4,6 +4,7 @@ import Login from "../pages/auth/login";
 import AddArticle from "../pages/article/add";
 import SetupProfile from "../pages/user/setup-profile";
 import Register from "../pages/auth/register";
+import Article from "../pages/article/index";
 
 export const routes: RouteObject[] = [
   {
@@ -25,5 +26,9 @@ export const routes: RouteObject[] = [
   {
     path: "/article/add",
     element: <AddArticle />,
+  },
+  {
+    path: "/article/",
+    element: <Article />,
   },
 ];
