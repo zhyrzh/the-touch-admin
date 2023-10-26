@@ -24,6 +24,11 @@
     gap: 30px;
   }
 
+  &__section-pending-journalist-approval {
+    display: flex;
+    overflow-x: auto;
+  }
+
   &__statistics-item {
     padding-top: 15px;
     padding-inline: 70px;
@@ -94,6 +99,64 @@
   &__cta-container {
     display: flex;
     justify-content: space-between;
+
+    &--bold {
+      font-weight: bold;
+    }
+
+    p {
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    div {
+      display: flex;
+      p {
+        &:not(:nth-of-type(1)) {
+          margin-left: 5px;
+        }
+      }
+    }
+  }
+}
+
+.journalist-card {
+  min-height: 300px;
+  width: 200px;
+  flex-shrink: 0;
+
+  &:not(:nth-of-type(1)) {
+    margin-left: 30px;
+  }
+
+  &__image-container {
+    img {
+      height: 196px;
+      width: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__journalist-name {
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+
+  &__details {
+    font-size: 12px;
+    margin-top: 6px;
+
+    &:nth-of-type(2) {
+      margin-bottom: 15px;
+    }
+  }
+
+  &__cta-container-sm {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
 
     &--bold {
       font-weight: bold;
