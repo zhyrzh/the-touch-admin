@@ -35,8 +35,8 @@ const AuthContextProvider: FC<{ children: any }> = ({ children }) => {
 
   const getUserInfo = async () => {
     try {
+      loadingContext.setIsLoading(true);
       const response: any = await authAPI.getProfile();
-
       if (response.profile === null) {
         navigate("/user/setup-profile");
         setUser(null);
