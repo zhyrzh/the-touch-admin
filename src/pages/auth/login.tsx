@@ -13,7 +13,7 @@ const Login = () => {
   const { data, onInputChangeHandler } = useInputChangeHandler<{
     email: string;
     password: string;
-  }>();
+  }>({ email: "", password: "" });
 
   const { errors, validateInputs, removeErrors } = useInputValidator<{
     email: string;
@@ -52,7 +52,7 @@ const Login = () => {
             <Input
               name="email"
               label="Email"
-              value={data?.email!}
+              value={data?.email ? data?.email : ""}
               errors={errors}
               onInputChangeHandler={onInputChangeHandler}
               removeErrors={removeErrors}
@@ -62,7 +62,7 @@ const Login = () => {
             <Input
               name="password"
               label="Password"
-              value={data?.password!}
+              value={data?.password! ? data?.password : ""}
               errors={errors}
               onInputChangeHandler={onInputChangeHandler}
               removeErrors={removeErrors}
