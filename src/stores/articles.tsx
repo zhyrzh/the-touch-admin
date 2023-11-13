@@ -31,7 +31,7 @@ export const ArticleContext = createContext<IArticleContext>(
 );
 
 const ArticleContextProvider: FC<{ children: any }> = ({ children }) => {
-  const [articles, setArticles] = useState<IArticleDetails[]>([]);
+  const [articles] = useState<IArticleDetails[]>([]);
   const loadingContext = useContext(LoadingContext);
   const messageContext = useContext(MessageContext);
   const navigate = useNavigate();
@@ -46,7 +46,10 @@ const ArticleContextProvider: FC<{ children: any }> = ({ children }) => {
       loadingContext.setIsLoading(true);
       const data = await articleAPI.createArticle({
         ...body,
-        author: body.author.map(({ key }) => ({ email: key })),
+        author: body.author.map(({ key, label }) => ({
+          email: key,
+          name: label,
+        })),
         photoJournalist: body.photoJournalist!.map(({ key }) => ({
           email: key,
         })),
