@@ -25,6 +25,7 @@ const SetupProfile: FC<any> = () => {
   const [profileImage, setProfileImage] = useState<{
     publicId: string;
     url: string;
+    id: number;
   }>();
 
   const { data, onInputChangeHandler, onDropdownInputChangeHandler } =
