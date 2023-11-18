@@ -1,0 +1,40 @@
+.alert-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  background-color: rgba($color: #1c1c1c, $alpha: 0.9);
+  padding-top: 30vh;
+}
+
+.alert-dialog {
+  max-width: 512px;
+  padding: 24px;
+  background-color: #fff;
+  margin: 0 auto;
+  border-radius: 10px;
+
+  &__title {
+    font-size: 18px;
+  }
+
+  &__description {
+    font-size: 14px;
+    margin-top: 10px;
+  }
+
+  &__button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+    button {
+      padding: 8px 16px;
+      border-radius: 5px;
+
+      &:not(:nth-of-type(1)) {
+        margin-left: 5px;
+        background-color: #000;
+        color: #fff;
+      }
+    }
+  }
+}
