@@ -1,4 +1,5 @@
 import { FC } from "react";
+import dayjs from "dayjs";
 
 interface IArticleCard {
   img: string;
@@ -18,7 +19,7 @@ const ArticleCard: FC<IArticleCard> = ({ author, date, img, title }) => {
           <h1 className="articles-card__title">{title}</h1>
           <div className="articles-card__secondary-info">
             <p>{author}</p>
-            <p>{date}</p>
+            <p>{dayjs(date).format("MMMM DD, YYYY").toString()}</p>
           </div>
         </div>
         <div className="articles-card__cta-container">
