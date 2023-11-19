@@ -1,4 +1,9 @@
-const AlertDialog = () => {
+import { FC } from "react";
+interface IAlertDialog {
+  onAccept: () => void;
+}
+
+const AlertDialog: FC<IAlertDialog> = ({ onAccept }) => {
   return (
     <div className="alert-dialog-backdrop">
       <div className="alert-dialog">
@@ -9,7 +14,7 @@ const AlertDialog = () => {
         </p>
         <div className="alert-dialog__button-container">
           <button>Cancel</button>
-          <button>Accept</button>
+          <button onClick={() => onAccept()}>Accept</button>
         </div>
       </div>
     </div>
