@@ -40,7 +40,6 @@ class API {
 
       return Promise.resolve(await response.json());
     } catch (error: any) {
-      console.log("error");
       return Promise.reject(error);
     }
   }
@@ -53,9 +52,8 @@ class API {
     return await API.call(HttpMethod.GET, url, body);
   }
 
-  static async put<T>(url: any, body: T) {
-    console.log(url, body);
-    return "get req response";
+  static async put<T>(url: any, body?: T) {
+    return await API.call(HttpMethod.PUT, url, body);
   }
 
   static async delete<T>(url: any, body: T) {
