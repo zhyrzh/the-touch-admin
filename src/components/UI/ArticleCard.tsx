@@ -2,13 +2,22 @@ import { FC } from "react";
 import dayjs from "dayjs";
 
 interface IArticleCard {
+  id: number;
   img: string;
   title: string;
   author: string;
   date: string;
+  onAccept: (id: number) => void;
 }
 
-const ArticleCard: FC<IArticleCard> = ({ author, date, img, title }) => {
+const ArticleCard: FC<IArticleCard> = ({
+  id,
+  author,
+  date,
+  img,
+  title,
+  onAccept,
+}) => {
   return (
     <div className="articles-card">
       <div className="articles-card__img-container">
@@ -27,7 +36,10 @@ const ArticleCard: FC<IArticleCard> = ({ author, date, img, title }) => {
             MORE INFO
           </p>
           <div>
-            <p className="articles-card__cta-container articles-card__cta-container--bold">
+            <p
+              className="articles-card__cta-container articles-card__cta-container--bold"
+              onClick={() => onAccept(id)}
+            >
               ACCEPT
             </p>
             <p>DECLINE</p>
