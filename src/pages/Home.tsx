@@ -4,9 +4,12 @@ import { useNavigate } from "react-router-dom";
 import ArticleCard from "../components/UI/ArticleCard";
 import JournalistCard from "../components/UI/JournalistCard";
 import { homeAPI } from "../api/home";
+import AlertDialog from "../components/UI/AlertDialog";
+import { ArticleContext } from "../stores/articles";
 
 interface IHomePageData {
   pendingArticles: Array<{
+    id: number;
     headline: string;
     date: string;
     // author: Array<{ name: string; email: string }>;
@@ -25,8 +28,11 @@ interface IHomePageData {
 
 const Home = () => {
   const authContext = useContext(AuthContext);
+  const articleContext = useContext(ArticleContext);
   const navigate = useNavigate();
   const [homePageDetails, setHomePageDetails] = useState<IHomePageData>();
+  const [showAcceptModal, setShowAcceptModal] = useState<boolean>(false);
+  const [selectedId, setSelectedId] = useState<number>();
 
   useEffect(() => {
     if (authContext?.user === null) {
@@ -40,6 +46,7 @@ const Home = () => {
 
       setHomePageDetails((_prevData: any) => ({
         pendingArticles: data.pendingArticles.map((artcle: any) => ({
+          id: artcle.id,
           title: artcle.headline,
           author: artcle.authors[0].name,
           date: artcle.createdAt,
@@ -56,8 +63,37 @@ const Home = () => {
     fetchHomePageData();
   }, []);
 
+  const acceptArticle = async () => {
+    const updatedArticleList = await articleContext.acceptArticle(selectedId!);
+    if (updatedArticleList) {
+      console.log(updatedArticleList, "checks me");
+      setHomePageDetails((prevData: any) => ({
+        pendingArticles: updatedArticleList?.updatedArticleList.map(
+          (artcle: any) => ({
+            id: artcle.id,
+            title: artcle.headline,
+            author: artcle.authors[0].name,
+            date: artcle.createdAt,
+            img: artcle.images[0].url,
+          })
+        ),
+        pendingJournalist: prevData?.pendingJournalist,
+      }));
+    }
+
+    setShowAcceptModal(false);
+  };
+
   return (
     <div className="home">
+      {showAcceptModal ? (
+        <AlertDialog
+          onAccept={() => {
+            setShowAcceptModal(false);
+            acceptArticle();
+          }}
+        />
+      ) : null}
       {/* Statistics section */}
       <div className="home__section">
         <h1 className="home__section-title">Statistics</h1>
@@ -78,13 +114,18 @@ const Home = () => {
         <h1 className="home__section-title">Pending articles</h1>
         <div className="home__section-content-container-grid" key={2}>
           {homePageDetails?.pendingArticles?.map(
-            ({ author, date, img, title }) => (
+            ({ author, date, img, title, id }) => (
               <ArticleCard
+                id={id}
                 key={title}
                 author={author}
                 date={date}
                 img={img}
                 title={title}
+                onAccept={() => {
+                  setShowAcceptModal((_prevState) => true);
+                  setSelectedId(id);
+                }}
               />
             )
           )}
