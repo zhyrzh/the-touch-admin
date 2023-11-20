@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import ArticleCard from "../components/UI/ArticleCard";
 import JournalistCard from "../components/UI/JournalistCard";
 import { homeAPI } from "../api/home";
-import AlertDialog from "../components/UI/AlertDialog";
 import { ArticleContext } from "../stores/articles";
 
 interface IHomePageData {
@@ -31,8 +30,6 @@ const Home = () => {
   const articleContext = useContext(ArticleContext);
   const navigate = useNavigate();
   const [homePageDetails, setHomePageDetails] = useState<IHomePageData>();
-  const [showAcceptModal, setShowAcceptModal] = useState<boolean>(false);
-  const [selectedId, setSelectedId] = useState<number>();
 
   useEffect(() => {
     if (authContext?.user === null) {
@@ -63,10 +60,9 @@ const Home = () => {
     fetchHomePageData();
   }, []);
 
-  const acceptArticle = async () => {
-    const updatedArticleList = await articleContext.acceptArticle(selectedId!);
+  const acceptArticle = async (id: number) => {
+    const updatedArticleList = await articleContext.acceptArticle(id);
     if (updatedArticleList) {
-      console.log(updatedArticleList, "checks me");
       setHomePageDetails((prevData: any) => ({
         pendingArticles: updatedArticleList?.updatedArticleList.map(
           (artcle: any) => ({
@@ -80,20 +76,10 @@ const Home = () => {
         pendingJournalist: prevData?.pendingJournalist,
       }));
     }
-
-    setShowAcceptModal(false);
   };
 
   return (
     <div className="home">
-      {showAcceptModal ? (
-        <AlertDialog
-          onAccept={() => {
-            setShowAcceptModal(false);
-            acceptArticle();
-          }}
-        />
-      ) : null}
       {/* Statistics section */}
       <div className="home__section">
         <h1 className="home__section-title">Statistics</h1>
@@ -122,9 +108,8 @@ const Home = () => {
                 date={date}
                 img={img}
                 title={title}
-                onAccept={() => {
-                  setShowAcceptModal((_prevState) => true);
-                  setSelectedId(id);
+                onAccept={(id) => {
+                  acceptArticle(id);
                 }}
               />
             )
