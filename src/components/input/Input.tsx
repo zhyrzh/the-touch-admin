@@ -1,4 +1,4 @@
-import { FC, useRef, ChangeEventHandler } from "react";
+import { FC, useRef, ChangeEvent } from "react";
 import { IError } from "../../utils";
 interface IInput {
   name: string;
@@ -6,7 +6,7 @@ interface IInput {
   value: string;
   errors: Array<IError>;
   isPassword?: boolean;
-  onInputChangeHandler: ChangeEventHandler;
+  onInputChangeHandler: (event: ChangeEvent<HTMLInputElement>) => void;
   removeErrors: (name: string) => void;
 }
 
@@ -21,7 +21,7 @@ const Input: FC<IInput> = ({
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const onChangeHandler: ChangeEventHandler<HTMLInputElement> = (event) => {
+  const onChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
     if (errors.findIndex((err) => err.for === name) > -1) {
       removeErrors(name);
     }
