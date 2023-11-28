@@ -2,10 +2,11 @@ import { FC } from "react";
 import { createPortal } from "react-dom";
 interface IAlertDialog {
   isShowed: boolean;
+  onCancel: () => void;
   onAccept: () => void;
 }
 
-const AlertDialog: FC<IAlertDialog> = ({ isShowed, onAccept }) => {
+const AlertDialog: FC<IAlertDialog> = ({ isShowed, onAccept, onCancel }) => {
   return isShowed
     ? createPortal(
         <div className="alert-dialog-backdrop">
@@ -16,7 +17,7 @@ const AlertDialog: FC<IAlertDialog> = ({ isShowed, onAccept }) => {
               article will make it visible to the readers of the site.
             </p>
             <div className="alert-dialog__button-container">
-              <button>Cancel</button>
+              <button onClick={() => onCancel()}>Cancel</button>
               <button onClick={() => onAccept()}>Accept</button>
             </div>
           </div>

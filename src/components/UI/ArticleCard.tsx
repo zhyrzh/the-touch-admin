@@ -28,6 +28,9 @@ const ArticleCard: FC<IArticleCard> = ({
           setShowAcceptModal(false);
         }}
         isShowed={showAcceptModal}
+        onCancel={() => {
+          setShowAcceptModal(false);
+        }}
       />
       <div className="articles-card">
         <div className="articles-card__img-container">
