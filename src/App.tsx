@@ -4,7 +4,7 @@ import MessageContextProvider from "./stores/message";
 import AuthContextProvider from "./stores/auth";
 import UserContextProvider from "./stores/user";
 import { useRoutes } from "react-router-dom";
-import ArticleContextProvider from "./stores/articles";
+import ArticleContexttProvider from "./stores/article.context";
 
 function App() {
   const appRoutes = useRoutes(routes);
@@ -14,7 +14,7 @@ function App() {
       <MessageContextProvider>
         <AuthContextProvider>
           <UserContextProvider>
-            <ArticleContextProvider>{appRoutes}</ArticleContextProvider>
+            <ArticleContexttProvider>{appRoutes}</ArticleContexttProvider>
           </UserContextProvider>
         </AuthContextProvider>
       </MessageContextProvider>
