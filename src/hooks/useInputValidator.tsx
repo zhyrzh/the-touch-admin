@@ -8,18 +8,20 @@ export interface IError {
 interface IUseInputValidator {
   errors: Array<IError>;
   validateInputs: () => number;
+  validateArticleFields: () => number;
   removeErrors: (name: string) => void;
 }
 
-export const useInputValidator = <T,>(body: T): IUseInputValidator => {
+export const useInputValidator = <_T,>(
+  body: Record<string, any>
+): IUseInputValidator => {
   const [errors, setErrors] = useState<IError[]>([]);
 
   const validateInputs = () => {
     let errorCount: number = 0;
     for (const key in body) {
       if (body[key] === "" || body[key] === undefined) {
-        setErrors((prevErrors) => [
-          ...prevErrors,
+        setErrors(() => [
           {
             for: key,
             message: "This field is required",
@@ -33,8 +35,7 @@ export const useInputValidator = <T,>(body: T): IUseInputValidator => {
             body[key] as string
           )
         ) {
-          setErrors((prevErrors) => [
-            ...prevErrors,
+          setErrors(() => [
             {
               for: key,
               message: "Invalid email",
@@ -51,9 +52,45 @@ export const useInputValidator = <T,>(body: T): IUseInputValidator => {
     setErrors((prevErrors) => prevErrors.filter((err) => err.for !== name));
   };
 
+  const validateArticleFields = () => {
+    let errorCount: number = 0;
+    for (const key in body) {
+      if (typeof body[key] === "string") {
+        if (
+          !errors.some((err) => err.for === key) &&
+          (body[key] === "" || body[key] === undefined)
+        ) {
+          setErrors((prevErrors) => [
+            ...prevErrors,
+            {
+              for: key,
+              message: "This field is required",
+            },
+          ]);
+          errorCount++;
+        }
+      }
+
+      if (Array.isArray(body[key])) {
+        if (!errors.some((err) => err.for === key) && body[key].length <= 0) {
+          setErrors((prevErrors) => [
+            ...prevErrors,
+            {
+              for: key,
+              message: "This field is required",
+            },
+          ]);
+          errorCount++;
+        }
+      }
+    }
+    return errorCount;
+  };
+
   return {
     errors,
     validateInputs,
     removeErrors,
+    validateArticleFields,
   };
 };
