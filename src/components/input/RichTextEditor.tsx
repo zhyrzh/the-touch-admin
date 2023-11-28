@@ -1,15 +1,18 @@
 import { FC } from "react";
 import ReactQuill from "react-quill";
+import { IError } from "../../utils";
 
 interface IRichTextEditor {
   value: string;
   placeHolder: string;
+  errors: Array<IError>;
   onChange: (value: string, name: string) => void;
 }
 
 const RichTextEditor: FC<IRichTextEditor> = ({
   value,
   placeHolder,
+  errors,
   onChange,
 }) => {
   return (
@@ -44,8 +47,17 @@ const RichTextEditor: FC<IRichTextEditor> = ({
           borderRadius: "10px",
           minHeight: "150px",
           marginTop: "7px",
+          border:
+            errors.findIndex((err) => err.for === "content") > -1
+              ? "1px solid red"
+              : "",
         }}
       />
+      {errors && errors.findIndex((err) => err.for === "content") > -1 ? (
+        <p className="dropdown__error-text">
+          {errors[errors.findIndex((err) => err.for === "content")].message}
+        </p>
+      ) : null}
     </div>
   );
 };
