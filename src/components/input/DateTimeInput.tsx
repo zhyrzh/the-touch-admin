@@ -1,10 +1,10 @@
-import { ChangeEventHandler, FC, useEffect, useRef, useState } from "react";
+import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 
 interface IInput {
   label: string;
   value: string;
-  onChange: ChangeEventHandler;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
 }
 
 const DateTimeInput: FC<IInput> = ({ label, value, onChange }) => {
