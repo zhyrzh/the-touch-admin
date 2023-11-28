@@ -1,6 +1,5 @@
 import { FC, useState, useContext, useEffect, useRef } from "react";
 import FileInput from "../../components/input/FileInput";
-import useInputChangeHandler from "../../hooks/useInputChangeHandler";
 import { AuthContext } from "../../stores/auth.tsx";
 import { useNavigate } from "react-router-dom";
 import LogoLg from "../../assets/the-touch-logo-lg.png";
@@ -8,8 +7,8 @@ import TextInput from "../../components/input/TextInput";
 import { useInputValidator } from "../../hooks/useInputValidator";
 import { IUploadedImage } from "../../hooks/useUploadImage";
 import { MessageContext } from "../../stores/message";
-import DropdownInput from "../../components/input/DropdownInput";
 import { courseOptions, posOptions } from "../../constants";
+import SingleDropdownInput from "../../components/input/SingleDropdownInput/index.tsx";
 
 interface ISetupProfileTextInput {
   firstName: string;
@@ -28,13 +27,12 @@ const SetupProfile: FC<any> = () => {
     id: number;
   }>();
 
-  const { data, onInputChangeHandler, onDropdownInputChangeHandler } =
-    useInputChangeHandler<ISetupProfileTextInput>({
-      course: "",
-      firstName: "",
-      lastName: "",
-      position: "",
-    });
+  const [data, setData] = useState<ISetupProfileTextInput>({
+    course: "",
+    firstName: "",
+    lastName: "",
+    position: "",
+  });
 
   const { errors, removeErrors, validateInputs } =
     useInputValidator<ISetupProfileTextInput>({
@@ -126,7 +124,12 @@ const SetupProfile: FC<any> = () => {
           value={data?.firstName!}
           type="text"
           errors={errors}
-          onInputChangeHandler={onInputChangeHandler}
+          onInputChangeHandler={(event) =>
+            setData((prevData) => ({
+              ...prevData,
+              firstName: event.target.value,
+            }))
+          }
           removeErrors={removeErrors}
         />
         <TextInput
@@ -134,38 +137,37 @@ const SetupProfile: FC<any> = () => {
           placeholder="Last Name"
           value={data?.lastName!}
           errors={errors}
-          onInputChangeHandler={onInputChangeHandler}
+          onInputChangeHandler={(event) =>
+            setData((prevData) => ({
+              ...prevData,
+              lastName: event.target.value,
+            }))
+          }
           removeErrors={removeErrors}
         />
-        <DropdownInput
-          isSearchable={true}
-          isMulti={false}
-          placeHolder="Course"
+        <SingleDropdownInput
+          title="Course"
           options={courseOptions}
-          onChange={onDropdownInputChangeHandler}
-          errors={errors}
-          name="course"
-          removeErrors={removeErrors}
-          listValue={[]}
-          value={{
-            key: data.course!,
-            label: data.course!,
-          }}
+          isSearchable
+          onChange={(value) =>
+            setData((prevData) => ({
+              ...prevData,
+              course: value.label,
+            }))
+          }
+          value={{ key: data.course, label: data.course }}
         />
-        <DropdownInput
-          isSearchable={true}
-          isMulti={false}
-          placeHolder="Position"
+        <SingleDropdownInput
+          title="Position"
           options={posOptions}
-          onChange={onDropdownInputChangeHandler}
-          errors={errors}
-          name="position"
-          removeErrors={removeErrors}
-          listValue={[]}
-          value={{
-            key: data.position!,
-            label: data.position!,
-          }}
+          isSearchable
+          onChange={(value) =>
+            setData((prevData) => ({
+              ...prevData,
+              position: value.label,
+            }))
+          }
+          value={{ key: data.position, label: data.position }}
         />
         <div className={`auth__button-container `}>
           <button className="auth__button" onClick={() => onSetupProfile()}>
