@@ -1,36 +1,41 @@
-import { useContext, useEffect, MouseEventHandler } from "react";
+import { useContext, useEffect, MouseEventHandler, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../stores/auth";
 import Input from "../../../components/input/Input";
 import RichTextEditor from "../../../components/input/RichTextEditor";
 import DropdownInput from "../../../components/input/DropdownInput";
-import useInputChangeHandler from "../../../hooks/useInputChangeHandler";
 import FileInputv2 from "../../../components/input/DragNDropInput";
 import { useInputValidator } from "../../../hooks/useInputValidator";
 import useGenerateDropdownOptions from "../../../hooks/useGenerateDropdownOptions";
 import DateTimeInput from "../../../components/input/DateTimeInput";
 import { useUploadAsset } from "../../../hooks/useUploadImage";
-import { ArticleContext } from "../../../stores/articles";
 import "react-quill/dist/quill.snow.css";
+import { ArticleContextt } from "../../../stores/article.context";
 
-interface IUserInvolved {
-  key: string;
-  label: string;
-}
 interface IArticleDetails {
   category: string;
   headline: string;
   content: string;
-  author: IUserInvolved[];
-  graphicsArtist?: IUserInvolved[];
-  photoJournalist?: IUserInvolved[];
+  author: { label: string; key: string }[];
+  graphicsArtist: { label: string; key: string }[];
+  photoJournalist: { label: string; key: string }[];
   createdAt: string;
 }
 
 const Home = () => {
   const authContext = useContext(AuthContext);
-  const articleContext = useContext(ArticleContext);
+  const articleContext = useContext(ArticleContextt);
   const navigate = useNavigate();
+
+  const [data, setData] = useState<IArticleDetails>({
+    category: "",
+    content: "",
+    createdAt: "",
+    headline: "",
+    graphicsArtist: [],
+    photoJournalist: [],
+    author: [],
+  });
 
   useEffect(() => {
     if (authContext?.user === null) {
@@ -38,32 +43,16 @@ const Home = () => {
     }
   }, [authContext?.user]);
 
-  const {
-    data,
-    onQuillChange,
-    onInputTimeChange,
-    onInputChangeHandler,
-    onMultiDropdownInputChangeHandler,
-    onRemoveOption,
-  } = useInputChangeHandler<IArticleDetails>({
-    category: "",
-    content: "",
-    createdAt: "",
-    headline: "",
-    graphicsArtist: [],
-    photoJournalist: [],
-    author: [],
-  });
-
-  const { errors, removeErrors } = useInputValidator<IArticleDetails>({
-    content: "",
-    category: "",
-    createdAt: "",
-    headline: "",
-    graphicsArtist: [],
-    photoJournalist: [],
-    author: [],
-  });
+  const { errors, removeErrors, validateArticleFields } =
+    useInputValidator<IArticleDetails>({
+      content: data.content,
+      category: data.category,
+      createdAt: data.createdAt,
+      headline: data.headline,
+      graphicsArtist: [],
+      photoJournalist: [],
+      author: [],
+    });
 
   const { onUploadImage, onUploadDraggedImage, uploadedFileList } =
     useUploadAsset();
@@ -74,13 +63,17 @@ const Home = () => {
 
   const onSubmit: MouseEventHandler = async (event) => {
     event.preventDefault();
-    articleContext.createArticle({
-      ...data,
-      author: data.author,
-      photoJournalist: data.photoJournalist!,
-      graphicsArtist: data.graphicsArtist!,
-      uploadedFiles: uploadedFileList,
-    });
+    const validationRes = validateArticleFields();
+    if (validationRes >= 1) {
+      articleContext?.createArticle({
+        ...data,
+        photoJournalist: data.photoJournalist!,
+        author: data.author!,
+        graphicsArtist: data.graphicsArtist!,
+      });
+    } else {
+      return;
+    }
   };
 
   return (
@@ -93,7 +86,12 @@ const Home = () => {
           label="Category (Required)"
           errors={errors}
           name="category"
-          onInputChangeHandler={onInputChangeHandler}
+          onInputChangeHandler={(event) =>
+            setData((prevData) => ({
+              ...prevData,
+              category: event.target.value,
+            }))
+          }
           removeErrors={removeErrors}
           value={data?.category!}
         />
@@ -101,63 +99,73 @@ const Home = () => {
           label="Headline (Required)"
           errors={errors}
           name="headline"
-          onInputChangeHandler={onInputChangeHandler}
+          onInputChangeHandler={(event) =>
+            setData((prevData) => ({
+              ...prevData,
+              headline: event.target.value,
+            }))
+          }
           removeErrors={removeErrors}
           value={data?.headline!}
         />
         <RichTextEditor
           placeHolder="Body (Required)"
           value={data?.content!}
-          onChange={onQuillChange}
+          onChange={(value) =>
+            setData((prevData) => ({
+              ...prevData,
+              content: value,
+            }))
+          }
+          errors={errors}
         />
         <div className="article__two-col">
           <div className="article__two-col-item">
             <DropdownInput
-              isSearchable={true}
-              isMulti={true}
-              placeHolder="Authored by (Required)"
-              name="author"
-              optionsKey="News Writer"
+              title="Author (Required)"
               options={authoredByOpts}
+              isSearchable
+              onChange={(value) =>
+                setData((prevData) => ({ ...prevData, author: value }))
+              }
+              value={data.author}
+              name="author"
               errors={errors}
-              listValue={data.author!}
-              removeErrors={removeErrors}
-              onChange={onMultiDropdownInputChangeHandler}
-              onRemoveOption={onRemoveOption}
-              value={null}
+              isRequired
             />
             <DropdownInput
-              isSearchable={true}
-              isMulti={true}
-              placeHolder="Graphics by"
-              name="graphicsArtist"
-              options={graphicsByOpts}
+              title="Photojournalist"
+              options={photoJournalistOpts}
+              isSearchable
+              onChange={(value) =>
+                setData((prevData) => ({ ...prevData, photoJournalist: value }))
+              }
+              value={data.photoJournalist}
+              name="photoJournalist"
               errors={errors}
-              listValue={data.graphicsArtist!}
-              onChange={onMultiDropdownInputChangeHandler}
-              removeErrors={removeErrors}
-              onRemoveOption={onRemoveOption}
-              value={null}
             />
           </div>
           <div className="article__two-col-item">
             <DropdownInput
-              isSearchable={true}
-              isMulti={true}
-              placeHolder="Images by"
-              name="photoJournalist"
-              options={photoJournalistOpts}
+              title="Graphics Artist"
+              options={graphicsByOpts}
+              isSearchable
+              onChange={(value) =>
+                setData((prevData) => ({ ...prevData, graphicsArtist: value }))
+              }
+              value={data.graphicsArtist}
+              name="graphicsArtist"
               errors={errors}
-              listValue={data.photoJournalist!}
-              onChange={onMultiDropdownInputChangeHandler}
-              removeErrors={removeErrors}
-              onRemoveOption={onRemoveOption}
-              value={null}
             />
             <DateTimeInput
               label="Date and Time created"
               value={data?.createdAt!}
-              onChange={onInputTimeChange}
+              onChange={(event) =>
+                setData((prevData) => ({
+                  ...prevData,
+                  createdAt: event.target.value,
+                }))
+              }
             />
           </div>
         </div>
