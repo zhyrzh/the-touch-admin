@@ -10,7 +10,7 @@ import useGenerateDropdownOptions from "../../../hooks/useGenerateDropdownOption
 import DateTimeInput from "../../../components/input/DateTimeInput";
 import { useUploadAsset } from "../../../hooks/useUploadImage";
 import "react-quill/dist/quill.snow.css";
-import { ArticleContextt } from "../../../stores/article.context";
+import { ArticleContext } from "../../../stores/article.context";
 
 interface IArticleDetails {
   category: string;
@@ -24,7 +24,7 @@ interface IArticleDetails {
 
 const Home = () => {
   const authContext = useContext(AuthContext);
-  const articleContext = useContext(ArticleContextt);
+  const articleContext = useContext(ArticleContext);
   const navigate = useNavigate();
 
   const [data, setData] = useState<IArticleDetails>({
@@ -47,11 +47,8 @@ const Home = () => {
     useInputValidator<IArticleDetails>({
       content: data.content,
       category: data.category,
-      createdAt: data.createdAt,
       headline: data.headline,
-      graphicsArtist: [],
-      photoJournalist: [],
-      author: [],
+      author: data.author,
     });
 
   const { onUploadImage, onUploadDraggedImage, uploadedFileList } =
@@ -61,15 +58,16 @@ const Home = () => {
   const [graphicsByOpts] = useGenerateDropdownOptions("Graphics Artist");
   const [photoJournalistOpts] = useGenerateDropdownOptions("Photojournalist");
 
-  const onSubmit: MouseEventHandler = async (event) => {
+  const onSubmit: MouseEventHandler = (event) => {
     event.preventDefault();
-    const validationRes = validateArticleFields();
-    if (validationRes >= 1) {
+    const errorCount = validateArticleFields();
+    if (errorCount === 0) {
       articleContext?.createArticle({
         ...data,
         photoJournalist: data.photoJournalist!,
         author: data.author!,
         graphicsArtist: data.graphicsArtist!,
+        uploadedFiles: uploadedFileList,
       });
     } else {
       return;
