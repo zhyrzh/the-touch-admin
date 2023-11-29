@@ -10,6 +10,11 @@ class UserAPI extends API {
     const response = await API.get(`/user/by-position/${position}`);
     return response;
   }
+
+  async acceptJournalist(id: number) {
+    const response = await API.put(`/user/accept-reject/${id}`);
+    return response;
+  }
 }
 
 export const userAPI = new UserAPI();
