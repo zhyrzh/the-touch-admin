@@ -23,11 +23,13 @@ const ArticleCard: FC<IArticleCard> = ({
   return (
     <>
       <AlertDialog
+        isShowed={showAcceptModal}
+        title="Accept article?"
+        description="Are you sure you want to accept selected article? Accepting this article will make it visible to the readers of the site."
         onAccept={() => {
           onAccept(id);
           setShowAcceptModal(false);
         }}
-        isShowed={showAcceptModal}
         onCancel={() => {
           setShowAcceptModal(false);
         }}
