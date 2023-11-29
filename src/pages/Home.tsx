@@ -5,6 +5,7 @@ import ArticleCard from "../components/UI/ArticleCard";
 import JournalistCard from "../components/UI/JournalistCard";
 import { homeAPI } from "../api/home";
 import { ArticleContext } from "../stores/articles";
+import { UserContext } from "../stores/user";
 
 interface IHomePageData {
   pendingArticles: Array<{
@@ -18,6 +19,7 @@ interface IHomePageData {
     author: string;
   }>;
   pendingJournalist: Array<{
+    id: number;
     name: string;
     course: string;
     position: string;
@@ -28,6 +30,7 @@ interface IHomePageData {
 const Home = () => {
   const authContext = useContext(AuthContext);
   const articleContext = useContext(ArticleContext);
+  const userContext = useContext(UserContext);
   const navigate = useNavigate();
   const [homePageDetails, setHomePageDetails] = useState<IHomePageData>();
 
@@ -54,6 +57,7 @@ const Home = () => {
           position: jrnlst.position,
           course: jrnlst.course,
           img: jrnlst.img,
+          id: jrnlst.email,
         })),
       }));
     };
@@ -74,6 +78,22 @@ const Home = () => {
           })
         ),
         pendingJournalist: prevData?.pendingJournalist,
+      }));
+    }
+  };
+
+  const acceptJournalist = async (id: number) => {
+    const data = await userContext.acceptJournalist(id);
+    if (data) {
+      setHomePageDetails((prevData: any) => ({
+        pendingJournalist: data?.updatedJournalistList.map((jrnlst: any) => ({
+          name: jrnlst.name,
+          position: jrnlst.position,
+          course: jrnlst.course,
+          img: jrnlst.img,
+          id: jrnlst.email,
+        })),
+        pendingArticles: prevData?.pendingArticles,
       }));
     }
   };
@@ -123,13 +143,15 @@ const Home = () => {
         <h1 className="home__section-title">Pending journalist approval</h1>
         <div className="home__section-pending-journalist-approval">
           {homePageDetails?.pendingJournalist.map(
-            ({ course, img, name, position }) => (
+            ({ course, img, name, position, id }) => (
               <JournalistCard
                 key={img}
                 course={course}
                 img={img}
                 name={name}
                 position={position}
+                onAccept={acceptJournalist}
+                id={id}
               />
             )
           )}

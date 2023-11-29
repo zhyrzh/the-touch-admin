@@ -1,8 +1,16 @@
 import { FC, createContext, useContext } from "react";
 import { userAPI } from "../api";
 // import { useNavigate } from "react-router-dom";
-// import { MessageContext } from "./message";
+import { MessageContext } from "./message";
 import { LoadingContext } from "./loading";
+
+interface IJournalist {
+  email: string;
+  course: string;
+  position: string;
+  name: string;
+  img: string;
+}
 
 interface IUSerByPosition {
   key: string;
@@ -10,6 +18,7 @@ interface IUSerByPosition {
 }
 export interface IUserContext {
   getAllByRole: (position: string) => Promise<IUSerByPosition[]>;
+  acceptJournalist: (id: number) => any;
 }
 
 export const UserContext = createContext<IUserContext>(
@@ -17,7 +26,7 @@ export const UserContext = createContext<IUserContext>(
 );
 
 const UserContextProvider: FC<{ children: any }> = ({ children }) => {
-  //   const messageContext = useContext(MessageContext);
+  const messageContext = useContext(MessageContext);
   const loadingContext = useContext(LoadingContext);
 
   const getAllByRole = async (role: string): Promise<IUSerByPosition[]> => {
@@ -35,10 +44,25 @@ const UserContextProvider: FC<{ children: any }> = ({ children }) => {
     }
   };
 
+  const acceptJournalist = async (id: number) => {
+    try {
+      loadingContext.setIsLoading(true);
+      const data = await userAPI.acceptJournalist(id);
+      return data;
+    } catch (error: any) {
+      messageContext.onAddMessage(
+        "Something went wrong when accepting the article!"
+      );
+    } finally {
+      loadingContext.setIsLoading(false);
+    }
+  };
+
   return (
     <UserContext.Provider
       value={{
         getAllByRole,
+        acceptJournalist,
       }}
     >
       {children}
