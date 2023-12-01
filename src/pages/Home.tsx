@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import ArticleCard from "../components/UI/ArticleCard";
 import JournalistCard from "../components/UI/JournalistCard";
 import { homeAPI } from "../api/home";
-import { ArticleContext } from "../stores/articles";
+// import { ArticleContext } from "../stores/articles";
+import { ArticleContext } from "../stores/article.context";
 import { UserContext } from "../stores/user";
 
 interface IHomePageData {
@@ -41,6 +42,7 @@ const Home = () => {
   }, [authContext?.user]);
 
   useEffect(() => {
+    articleContext.getHomePageArticles();
     const fetchHomePageData = async () => {
       const data = await homeAPI.getAllHomePageData();
 
@@ -119,15 +121,16 @@ const Home = () => {
       <div className="home__section">
         <h1 className="home__section-title">Pending articles</h1>
         <div className="home__section-content-container-grid" key={2}>
-          {homePageDetails?.pendingArticles?.map(
-            ({ author, date, img, title, id }) => (
+          {/* {console.log(articleContext.articles, "tanan")} */}
+          {articleContext.articles?.map(
+            ({ author, headline, createdAt, id, uploadedFiles }) => (
               <ArticleCard
                 id={id}
-                key={title}
-                author={author}
-                date={date}
-                img={img}
-                title={title}
+                key={id}
+                author={author[0].label}
+                date={createdAt}
+                img={uploadedFiles[0].url}
+                title={headline}
                 onAccept={(id) => {
                   acceptArticle(id);
                 }}

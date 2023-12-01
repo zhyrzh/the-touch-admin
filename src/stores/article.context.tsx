@@ -1,5 +1,5 @@
 import { FC, createContext, useContext, useState } from "react";
-// import { MessageContext } from "./message";
+import { MessageContext } from "./message";
 import { LoadingContext } from "./loading";
 import { articleAPI } from "../api/article";
 import { IUploadedImage } from "../hooks/useUploadImage";
@@ -46,20 +46,9 @@ export interface IArticleDetails {
 
 interface IArticleContext {
   articles: Array<IArticleDetails>;
-  createArticle: (
-    body: Pick<
-      IArticleDetails,
-      | "category"
-      | "headline"
-      | "content"
-      | "author"
-      | "graphicsArtist"
-      | "photoJournalist"
-      | "createdAt"
-      | "uploadedFiles"
-    >
-  ) => void;
+  createArticle: (body: Partial<IArticleDetails>) => void;
   acceptArticle: (id: number) => any;
+  getHomePageArticles: () => void;
 }
 
 export const ArticleContext = createContext<IArticleContext>(
@@ -68,39 +57,31 @@ export const ArticleContext = createContext<IArticleContext>(
 
 const ArticleContexttProvider: FC<{ children: any }> = ({ children }) => {
   const loadingContext = useContext(LoadingContext);
-  //   const messageContext = useContext(MessageContext);
+  const messageContext = useContext(MessageContext);
   const navigate = useNavigate();
-  const [articles] = useState<IArticleDetails[]>([]);
+  const [articles, setArticles] = useState<IArticleDetails[]>([]);
 
-  const createArticle = async (
-    body: Pick<
-      IArticleDetails,
-      | "category"
-      | "headline"
-      | "content"
-      | "author"
-      | "graphicsArtist"
-      | "photoJournalist"
-      | "createdAt"
-      | "uploadedFiles"
-    >
-  ) => {
+  const createArticle = async (body: Partial<IArticleDetails>) => {
     try {
       loadingContext.setIsLoading(true);
       await articleAPI.createArticle({
         ...body,
-        author: body.author.map(({ key, label }) => ({
-          email: key,
-          name: label,
-        })),
+        author:
+          body.author &&
+          body.author.map(({ key, label }) => ({
+            email: key,
+            name: label,
+          })),
         photoJournalist: body.photoJournalist!.map(({ key }) => ({
           email: key,
         })),
         graphicsArtist: body.graphicsArtist!.map(({ key }) => ({ email: key })),
-        featuredImages: body.uploadedFiles.map((file) => ({
-          publicId: file.publicId,
-          url: file.url,
-        })),
+        featuredImages:
+          body.uploadedFiles &&
+          body.uploadedFiles.map((file) => ({
+            publicId: file.publicId,
+            url: file.url,
+          })),
         createdAt:
           body.createdAt !== ""
             ? body.createdAt
@@ -108,17 +89,44 @@ const ArticleContexttProvider: FC<{ children: any }> = ({ children }) => {
       });
       navigate("/");
     } catch (error) {
+      messageContext.onAddMessage("Something went wrong with the server.");
     } finally {
       loadingContext.setIsLoading(false);
     }
   };
 
-  const acceptArticle = (id: number) => {};
+  const acceptArticle = (_id: number) => {};
 
-  //   const getLimitedArticles = () => {};
+  const getHomePageArticles = async () => {
+    try {
+      loadingContext.setIsLoading(true);
+      const data = await articleAPI.getAll();
+      setArticles((_prevData) =>
+        data.map((artcle: any) => ({
+          id: artcle.id,
+          headline: artcle.headline,
+          content: artcle.content,
+          author: artcle.author.map(
+            (athr: { email: any; firstName: any; lastName: any }) => ({
+              key: athr.email,
+              label: `${athr.firstName} ${athr.lastName}`,
+            })
+          ),
+          date: artcle.createdAt,
+          uploadedFiles: artcle.images,
+        }))
+      );
+      console.log(data);
+    } catch (error) {
+    } finally {
+      loadingContext.setIsLoading(false);
+    }
+  };
 
   return (
-    <ArticleContext.Provider value={{ articles, createArticle, acceptArticle }}>
+    <ArticleContext.Provider
+      value={{ articles, createArticle, acceptArticle, getHomePageArticles }}
+    >
       {children}
     </ArticleContext.Provider>
   );
