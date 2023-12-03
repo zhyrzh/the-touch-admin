@@ -95,7 +95,22 @@ const ArticleContexttProvider: FC<{ children: any }> = ({ children }) => {
     }
   };
 
-  const acceptArticle = (_id: number) => {};
+  const acceptArticle = async (id: number) => {
+    try {
+      loadingContext.setIsLoading(true);
+      const data = await articleAPI.acceptArticle(id);
+      if (data !== undefined) {
+        getHomePageArticles();
+      }
+      // return data;
+    } catch (error: any) {
+      messageContext.onAddMessage(
+        "Something went wrong when accepting the article!"
+      );
+    } finally {
+      loadingContext.setIsLoading(false);
+    }
+  };
 
   const getHomePageArticles = async () => {
     try {
@@ -106,17 +121,11 @@ const ArticleContexttProvider: FC<{ children: any }> = ({ children }) => {
           id: artcle.id,
           headline: artcle.headline,
           content: artcle.content,
-          author: artcle.author.map(
-            (athr: { email: any; firstName: any; lastName: any }) => ({
-              key: athr.email,
-              label: `${athr.firstName} ${athr.lastName}`,
-            })
-          ),
+          author: artcle.author,
           date: artcle.createdAt,
           uploadedFiles: artcle.images,
         }))
       );
-      console.log(data);
     } catch (error) {
     } finally {
       loadingContext.setIsLoading(false);
