@@ -2,12 +2,12 @@ import { FC, useState } from "react";
 import AlertDialog from "./AlertDialog";
 
 interface IJournalistCard {
-  id: number;
+  id: string;
   name: string;
   img: string;
   position: string;
   course: string;
-  onAccept: (id: number) => void;
+  onAccept: (id: string) => void;
 }
 
 const JournalistCard: FC<IJournalistCard> = ({
