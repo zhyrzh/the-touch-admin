@@ -1,4 +1,4 @@
-import { FC, createContext, useContext } from "react";
+import { FC, createContext, useContext, useState } from "react";
 import { userAPI } from "../api";
 // import { useNavigate } from "react-router-dom";
 import { MessageContext } from "./message";
@@ -17,8 +17,10 @@ interface IUSerByPosition {
   label: string;
 }
 export interface IUserContext {
+  journalists: IJournalist[];
   getAllByRole: (position: string) => Promise<IUSerByPosition[]>;
-  acceptJournalist: (id: number) => any;
+  acceptJournalist: (id: string) => any;
+  getHomePageJournalist: () => any;
 }
 
 export const UserContext = createContext<IUserContext>(
@@ -28,6 +30,7 @@ export const UserContext = createContext<IUserContext>(
 const UserContextProvider: FC<{ children: any }> = ({ children }) => {
   const messageContext = useContext(MessageContext);
   const loadingContext = useContext(LoadingContext);
+  const [journalists, setJournalists] = useState<IJournalist[]>([]);
 
   const getAllByRole = async (role: string): Promise<IUSerByPosition[]> => {
     try {
@@ -44,11 +47,13 @@ const UserContextProvider: FC<{ children: any }> = ({ children }) => {
     }
   };
 
-  const acceptJournalist = async (id: number) => {
+  const acceptJournalist = async (id: string) => {
     try {
       loadingContext.setIsLoading(true);
       const data = await userAPI.acceptJournalist(id);
-      return data;
+      if (data !== undefined) {
+        getHomePageJournalist();
+      }
     } catch (error: any) {
       messageContext.onAddMessage(
         "Something went wrong when accepting the article!"
@@ -58,11 +63,24 @@ const UserContextProvider: FC<{ children: any }> = ({ children }) => {
     }
   };
 
+  const getHomePageJournalist = async () => {
+    try {
+      loadingContext.setIsLoading(true);
+      const data = await userAPI.getAll();
+      setJournalists(data as IJournalist[]);
+    } catch (error) {
+    } finally {
+      loadingContext.setIsLoading(false);
+    }
+  };
+
   return (
     <UserContext.Provider
       value={{
+        journalists,
         getAllByRole,
         acceptJournalist,
+        getHomePageJournalist,
       }}
     >
       {children}
