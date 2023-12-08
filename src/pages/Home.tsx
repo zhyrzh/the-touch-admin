@@ -54,9 +54,7 @@ const Home = () => {
                 date={createdAt}
                 img={uploadedFiles[0].url}
                 title={headline}
-                onAccept={(id) => {
-                  articleContext.acceptArticle(id);
-                }}
+                onAccept={articleContext.acceptArticle}
               />
             )
           )}
@@ -68,7 +66,7 @@ const Home = () => {
       <div className="home__section">
         <h1 className="home__section-title">Pending journalist approval</h1>
         <div className="home__section-pending-journalist-approval">
-          {userContext?.journalists.map(
+          {userContext.journalists?.map(
             ({ course, img, name, position, email }) => (
               <JournalistCard
                 key={img}
