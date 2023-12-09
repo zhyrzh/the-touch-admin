@@ -38,6 +38,11 @@ class ArticleAPI extends API {
     );
     return response;
   }
+
+  async getSpecific(id: number) {
+    const response = await API.get(`/article/specific/${id}`);
+    return response;
+  }
 }
 
 export const articleAPI = new ArticleAPI();
