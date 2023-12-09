@@ -22,7 +22,7 @@ interface IArticleDetails {
   createdAt: string;
 }
 
-const Home = () => {
+const ArticleAdd = () => {
   const authContext = useContext(AuthContext);
   const articleContext = useContext(ArticleContext);
   const navigate = useNavigate();
@@ -195,4 +195,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default ArticleAdd;
