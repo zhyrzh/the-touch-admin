@@ -45,10 +45,12 @@ export interface IArticleDetails {
 }
 
 interface IArticleContext {
+  article?: IArticleDetails;
   articles: Array<IArticleDetails>;
   createArticle: (body: Partial<IArticleDetails>) => void;
   acceptArticle: (id: number) => any;
   getHomePageArticles: () => void;
+  getSpecific: (id: number) => any;
 }
 
 export const ArticleContext = createContext<IArticleContext>(
@@ -60,12 +62,25 @@ const ArticleContexttProvider: FC<{ children: any }> = ({ children }) => {
   const messageContext = useContext(MessageContext);
   const navigate = useNavigate();
   const [articles, setArticles] = useState<IArticleDetails[]>([]);
+  const [article, setArticle] = useState<IArticleDetails>({
+    author: [],
+    photoJournalist: [],
+    graphicsArtist: [],
+    uploadedFiles: [],
+    category: "",
+    content: "",
+    createdAt: "",
+    headline: "",
+    id: 0,
+    isApproved: false,
+  });
 
   const createArticle = async (body: Partial<IArticleDetails>) => {
     try {
       loadingContext.setIsLoading(true);
       await articleAPI.createArticle({
         ...body,
+        uploadedFiles: undefined,
         author:
           body.author &&
           body.author.map(({ key, label }) => ({
@@ -81,6 +96,7 @@ const ArticleContexttProvider: FC<{ children: any }> = ({ children }) => {
           body.uploadedFiles.map((file) => ({
             publicId: file.publicId,
             url: file.url,
+            name: file.name,
           })),
         createdAt:
           body.createdAt !== ""
@@ -122,7 +138,7 @@ const ArticleContexttProvider: FC<{ children: any }> = ({ children }) => {
           headline: artcle.headline,
           content: artcle.content,
           author: artcle.author,
-          date: artcle.createdAt,
+          createdAt: artcle.createdAt,
           uploadedFiles: artcle.images,
         }))
       );
@@ -132,9 +148,21 @@ const ArticleContexttProvider: FC<{ children: any }> = ({ children }) => {
     }
   };
 
+  const getSpecific = async (id: number) => {
+    const data = await articleAPI.getSpecific(id);
+    setArticle(data);
+  };
+
   return (
     <ArticleContext.Provider
-      value={{ articles, createArticle, acceptArticle, getHomePageArticles }}
+      value={{
+        article,
+        articles,
+        createArticle,
+        acceptArticle,
+        getHomePageArticles,
+        getSpecific,
+      }}
     >
       {children}
     </ArticleContext.Provider>
