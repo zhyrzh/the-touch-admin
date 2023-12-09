@@ -10,6 +10,7 @@ interface IUseInputValidator {
   validateInputs: () => number;
   validateArticleFields: () => number;
   removeErrors: (name: string) => void;
+  checkHasValuesChanged: (prevValues: any, currValues: any) => number;
 }
 
 export const useInputValidator = <_T,>(
@@ -87,10 +88,56 @@ export const useInputValidator = <_T,>(
     return errorCount;
   };
 
+  const checkHasValuesChanged = (prevValues: any, currValues: any): number => {
+    let valuesChangeCount = 0;
+    let stringValues: Record<string, unknown> = {};
+    let arrayValues: Record<string, unknown> = {};
+    for (const val in currValues) {
+      if (Array.isArray(currValues[val]) && currValues[val] !== undefined) {
+        arrayValues[val] = currValues[val];
+      }
+      if (typeof currValues[val] === "string") {
+        stringValues[val] = currValues[val];
+      }
+    }
+
+    for (const val in stringValues) {
+      if (
+        !Array.isArray(stringValues[val]) &&
+        stringValues[val] !== "" &&
+        prevValues[val] !== stringValues[val] &&
+        prevValues[val].length !== (stringValues[val] as string).length
+      ) {
+        valuesChangeCount++;
+      }
+    }
+
+    for (const val in arrayValues) {
+      // const equalTo = equalArrayCheck(arrayValues[val], prevValues[val]);
+
+      const isEqual = (
+        arrayValues[val] as Array<{ key: string; label: string }>
+      ).every((item, idx) => {
+        return prevValues[val][idx]?.key === item?.key;
+      });
+
+      const prevValLength = prevValues[val].length;
+      const currValLength = (
+        arrayValues[val] as Array<{ key: string; label: string }>
+      ).length;
+      if (currValLength !== 0 && prevValLength === currValLength && !isEqual) {
+        valuesChangeCount++;
+      }
+    }
+
+    return valuesChangeCount;
+  };
+
   return {
     errors,
     validateInputs,
     removeErrors,
     validateArticleFields,
-  };
+    checkHasValuesChanged,
+  } as const;
 };
