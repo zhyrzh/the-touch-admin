@@ -3,26 +3,40 @@ import ReactQuill from "react-quill";
 import { IError } from "../../utils";
 
 interface IRichTextEditor {
-  value: string;
+  defaultValue?: string;
+  value?: string;
   placeHolder: string;
   errors: Array<IError>;
   onChange: (value: string, name: string) => void;
+  onKeyPressed?: () => void;
 }
 
 const RichTextEditor: FC<IRichTextEditor> = ({
   value,
+  defaultValue,
   placeHolder,
   errors,
   onChange,
+  onKeyPressed,
 }) => {
   return (
     <div className="text-input">
+      {/* {console.log(defaultValue, "check default value")} */}
       <p className="text-input__label">{placeHolder}</p>
       <ReactQuill
-        value={value}
-        onChange={(value: string) => {
-          onChange(value, "content");
+        defaultValue={defaultValue}
+        value={value === "" ? defaultValue : value}
+        onChange={(
+          _changeVal: string,
+          _delta: any,
+          _source: any,
+          editor: any
+        ) => {
+          // console.log(editor.getHTML());
+          onChange(editor.getHTML(), "content");
         }}
+        onKeyPress={() => onKeyPressed && onKeyPressed()}
+        onKeyDown={() => onKeyPressed && onKeyPressed()}
         modules={{
           toolbar: [
             ["bold", "italic", "underline", "strike", "blockquote"],
